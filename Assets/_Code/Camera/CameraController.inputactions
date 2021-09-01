@@ -2,7 +2,7 @@
     "name": "CameraController",
     "maps": [
         {
-            "name": "Horizontal",
+            "name": "CameraControl",
             "id": "2d399b90-1008-4ec5-8fdd-6db0dac71498",
             "actions": [
                 {
@@ -19,7 +19,7 @@
                     "id": "a3b8fd41-2529-4c53-b34e-4779a5d95d24",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press"
                 },
                 {
                     "name": "Zoom",
@@ -48,7 +48,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Mouvement",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -59,7 +59,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Mouvement",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -67,10 +67,10 @@
                 {
                     "name": "left",
                     "id": "0fa77926-4e69-4727-af80-46ae90474796",
-                    "path": "<Keyboard>/a",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Mouvement",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -78,10 +78,10 @@
                 {
                     "name": "right",
                     "id": "ba3874d6-2fb2-47be-b042-e40dd9a60777",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Mouvement",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -92,7 +92,7 @@
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "Rotation",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -102,8 +102,8 @@
                     "id": "005f9dd5-27c7-49d4-8b1d-a764c8c6dedf",
                     "path": "<Mouse>/scroll/y",
                     "interactions": "",
-                    "processors": "",
-                    "groups": "",
+                    "processors": "Clamp(min=-1,max=1),Invert",
+                    "groups": "Keyboard&Mouse",
                     "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -111,5 +111,22 @@
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "Keyboard&Mouse",
+            "bindingGroup": "Keyboard&Mouse",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": true,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Mouse>",
+                    "isOptional": true,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }
