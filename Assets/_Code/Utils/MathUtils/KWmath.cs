@@ -8,6 +8,10 @@ namespace KaizerWaldCode.Utils
 {
     public static class KWmath
     {
+        public static byte MinMaxByte(byte valmin, byte b)
+        {
+            return (byte)max(valmin, min(b, (int)byte.MaxValue));
+        }
         /// <summary>
         /// Return the determinant of 2 vector
         /// </summary>

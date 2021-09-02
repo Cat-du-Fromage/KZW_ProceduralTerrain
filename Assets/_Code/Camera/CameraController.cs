@@ -1,38 +1,41 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using KaizerWaldCode.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Mathematics;
 using UnityEngine.InputSystem.Interactions;
 
 using static Unity.Mathematics.math;
+using static KaizerWaldCode.Utils.KWmath;
 using float3 =  Unity.Mathematics.float3;
-using static Unity.Mathematics.quaternion;
+using float2 = Unity.Mathematics.float2;
 namespace KaizerWaldCode
 {
     public class CameraController : MonoBehaviour
     {
-        [SerializeField] private float _rotationSpeed;
-        [SerializeField] private float _moveSpeed;
-        [SerializeField] private float _zoomSpeed;
+        [Min(1)]
+        [SerializeField] private byte _rotationSpeed;
+        [Min(1)]
+        [SerializeField] private byte _moveSpeed;
+        [Min(1)]
+        [SerializeField] private byte _zoomSpeed;
 
         private int _sprint;
         private float _zoom;
         private bool _canRotate;
-        private Vector2 _startPosition;
-        private Vector2 _endPosition;
-        private Vector2 _horizontal;
-        private Transform child;
-        
+        private float2 _startPosition;
+        private float2 _endPosition;
+        private float2 _horizontal;
+
         private void Awake()
         {
-            child = transform.GetChild(0);
-            _rotationSpeed = max(10f, _rotationSpeed);
-            _moveSpeed = max(1f, _moveSpeed);
-            _zoomSpeed = max(1f, _zoomSpeed);
-            _canRotate = false;
+            _rotationSpeed = MinMaxByte(1, _rotationSpeed);
+            _moveSpeed = MinMaxByte(1, _moveSpeed);
+            _zoomSpeed = MinMaxByte(1, _zoomSpeed);
             _sprint = max(1, _sprint);
+            _canRotate = false;
         }
         
         private void Update()
@@ -40,45 +43,31 @@ namespace KaizerWaldCode
             if(_canRotate)
                 SetCameraRotation();
 
-            if (_horizontal != Vector2.zero)
+            if (!_horizontal.Equals(float2.zero))
             {
                 //real forward of the camera (aware of the rotation)
-                Vector3 currentCameraForward = new Vector3(transform.forward.x, 0, transform.forward.z);
-                Vector3 z = Vector3.zero;
-                Vector3 x = Vector3.zero;
+                float3 currentCameraForward = new float3(transform.forward.x, 0, transform.forward.z);
+                float3 z = float3.zero;
+                float3 x = float3.zero;
 
                 if (_horizontal.x != 0) 
-                    x = _horizontal.x > 0 ? -transform.right : transform.right;
+                    x = select(transform.right, -transform.right, _horizontal.x > 0);
                 if (_horizontal.y != 0) 
-                    z = _horizontal.y > 0 ? currentCameraForward : -currentCameraForward;
-
-                Vector3 dir = (x + z) * _moveSpeed * Time.deltaTime * _sprint;
-
-                transform.position += dir;
+                    z = select(-currentCameraForward, currentCameraForward, _horizontal.y > 0);
+                transform.position += (Vector3)(x + z) * _moveSpeed * _sprint * Time.deltaTime;
             }
 
             if (_zoom != 0)
-                transform.position += Vector3.up * _zoom;
+                transform.position = mad(up(), _zoom, transform.position);
         }
         
         public void SetCameraRotation()
         {
-            float distanceX, distanceY;
             _endPosition = Mouse.current.position.ReadValue();
-            if (_endPosition != _startPosition)
+            if (!_endPosition.Equals(_startPosition))
             {
-                /*
-                distanceX = radians((_endPosition - _startPosition).x * _rotationSpeed * Time.deltaTime);
-                distanceY = radians((_endPosition - _startPosition).y * _rotationSpeed * Time.deltaTime);
-
-                transform.rotation *= EulerZXY(new float3(0, distanceX, 0));
-                transform.rotation *= EulerZXY(new float3(-distanceY, 0, 0));
-
-                //transform.rotation *= Quaternion.Euler(new Vector3(0, distanceX, 0));
-                //transform.GetChild(0).transform.rotation *= Quaternion.Euler(new Vector3(-distanceY, 0, 0));
-                */
-                distanceX = (_endPosition - _startPosition).x * _rotationSpeed * Time.deltaTime;
-                distanceY = (_endPosition - _startPosition).y * _rotationSpeed * Time.deltaTime;
+                float distanceX = (_endPosition - _startPosition).x * _rotationSpeed * Time.deltaTime;
+                float distanceY = (_endPosition - _startPosition).y * _rotationSpeed * Time.deltaTime;
                 transform.Rotate(0f, distanceX, 0f, Space.World);
                 transform.Rotate(-distanceY, 0f, 0f, Space.Self);
                 
@@ -86,6 +75,7 @@ namespace KaizerWaldCode
             }
         }
 
+        #region EVENTS CALLBACK
         public void RotateCamera(InputAction.CallbackContext context)
         {
             if (context.performed)
@@ -111,7 +101,8 @@ namespace KaizerWaldCode
 
         public void SprintCamera(InputAction.CallbackContext context)
         {
-            _sprint = context.canceled ? 1 : 3;
+            _sprint = select(3, 1, context.canceled);
         }
+        #endregion EVENTS CALLBACK
     }
 }
