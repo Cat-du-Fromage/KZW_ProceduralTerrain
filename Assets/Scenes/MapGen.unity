@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028328, g: 0.22571322, b: 0.30692163, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -261,9 +261,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57a9852486bdd684984b2d4eddfae438, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rotationSpeed: 10
-  _moveSpeed: 1
-  _zoomSpeed: 2
+  _rotationSpeed: 20
+  _moveSpeed: 5
+  _zoomSpeed: 1
 --- !u!114 &673880508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,7 +292,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 673880507}
-        m_TargetAssemblyTypeName: KaizerWaldCode.CameraRotation, Assembly-CSharp
+        m_TargetAssemblyTypeName: KaizerWaldCode.CameraController, Assembly-CSharp
         m_MethodName: MoveCamera
         m_Mode: 0
         m_Arguments:
@@ -308,7 +308,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 673880507}
-        m_TargetAssemblyTypeName: KaizerWaldCode.CameraRotation, Assembly-CSharp
+        m_TargetAssemblyTypeName: KaizerWaldCode.CameraController, Assembly-CSharp
         m_MethodName: RotateCamera
         m_Mode: 0
         m_Arguments:
@@ -324,7 +324,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 673880507}
-        m_TargetAssemblyTypeName: KaizerWaldCode.CameraRotation, Assembly-CSharp
+        m_TargetAssemblyTypeName: KaizerWaldCode.CameraController, Assembly-CSharp
         m_MethodName: ZoomCamera
         m_Mode: 0
         m_Arguments:
@@ -337,6 +337,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 4092d86b-2351-447c-892d-8fbfe31a9362
     m_ActionName: CameraControl/Zoom[/Mouse/scroll/y]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 673880507}
+        m_TargetAssemblyTypeName: KaizerWaldCode.CameraController, Assembly-CSharp
+        m_MethodName: SprintCamera
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 46c185b5-c186-4cbc-bdcb-40093f85076a
+    m_ActionName: CameraControl/Faster[/Keyboard/leftShift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: CameraControl
