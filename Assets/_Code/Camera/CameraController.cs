@@ -43,14 +43,14 @@ namespace KaizerWaldCode
             if (_horizontal != Vector2.zero)
             {
                 //real forward of the camera (aware of the rotation)
-                //Vector3 currentCameraForward = new Vector3(transform.forward.x, 0, transform.forward.z);
+                Vector3 currentCameraForward = new Vector3(transform.forward.x, 0, transform.forward.z);
                 Vector3 z = Vector3.zero;
                 Vector3 x = Vector3.zero;
 
                 if (_horizontal.x != 0) 
                     x = _horizontal.x > 0 ? -transform.right : transform.right;
                 if (_horizontal.y != 0) 
-                    z = _horizontal.y > 0 ? transform.forward : -transform.forward;
+                    z = _horizontal.y > 0 ? currentCameraForward : -currentCameraForward;
 
                 Vector3 dir = (x + z) * _moveSpeed * Time.deltaTime * _sprint;
 
@@ -67,13 +67,21 @@ namespace KaizerWaldCode
             _endPosition = Mouse.current.position.ReadValue();
             if (_endPosition != _startPosition)
             {
+                /*
                 distanceX = radians((_endPosition - _startPosition).x * _rotationSpeed * Time.deltaTime);
                 distanceY = radians((_endPosition - _startPosition).y * _rotationSpeed * Time.deltaTime);
 
                 transform.rotation *= EulerZXY(new float3(0, distanceX, 0));
-                child.transform.rotation *= EulerZXY(new float3(-distanceY, 0, 0));
+                transform.rotation *= EulerZXY(new float3(-distanceY, 0, 0));
+
                 //transform.rotation *= Quaternion.Euler(new Vector3(0, distanceX, 0));
                 //transform.GetChild(0).transform.rotation *= Quaternion.Euler(new Vector3(-distanceY, 0, 0));
+                */
+                distanceX = (_endPosition - _startPosition).x * _rotationSpeed * Time.deltaTime;
+                distanceY = (_endPosition - _startPosition).y * _rotationSpeed * Time.deltaTime;
+                transform.Rotate(0f, distanceX, 0f, Space.World);
+                transform.Rotate(-distanceY, 0f, 0f, Space.Self);
+                
                 _startPosition = _endPosition;
             }
         }
