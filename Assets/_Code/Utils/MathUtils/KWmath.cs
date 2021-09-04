@@ -8,9 +8,24 @@ namespace KaizerWaldCode.Utils
 {
     public static class KWmath
     {
-        public static byte MinMaxByte(byte valmin, byte b)
+        public static byte MinMax<T>(byte valmin, byte valMax) where T : struct
         {
-            return (byte)max(valmin, min(b, (int)byte.MaxValue));
+            return (byte)max(valmin, min(valMax, (int)byte.MaxValue));
+        }
+
+        public static int MinMax(int valmin, int valMax)
+        {
+            return max(valmin, min(valMax, int.MaxValue));
+        }
+
+        /// <summary>
+        /// Multiply value by itself (v * v)
+        /// </summary>
+        /// <param name="v">value to multiple by itself</param>
+        /// <returns>(v * v)</returns>
+        public static int sq(int v)
+        {
+            return v*v;
         }
         /// <summary>
         /// Return the determinant of 2 vector

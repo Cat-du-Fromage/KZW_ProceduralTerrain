@@ -42,6 +42,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5d586acca2c648047acc1d37041ff4ad, type: 2}
   - {fileID: 11400000, guid: 5f958d3e78457fc4caffaaf5385b4059, type: 2}
   - {fileID: 11400000, guid: 4661bb94f42e6e14da92207ca32affb3, type: 2}
+  - {fileID: 11400000, guid: 0105886df017aac498595c5cf63ac0b0, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -52,6 +53,20 @@ MonoBehaviour:
     - m_InheritedParent: 
       m_Id: acfa9eefc26ea2443aa0e86a3c45d3ad
       m_ProfileName: Default
+      m_Values:
+      - m_Id: 315730dd74ac93e45b4caed087aced18
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: dc572808f0cf8624cb56e4fdfee133d2
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
+      - m_Id: a76a1c1befc74704bb1ddc953ac9c7b6
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: 789fd6ece6c626444a33691c683a8f8b
+        m_Value: ServerData/[BuildTarget]
+      - m_Id: 82122c1b10aa43f4a873c97548d48212
+        m_Value: http://localhost/[BuildTarget]
+    - m_InheritedParent: 
+      m_Id: 6cddad02bd15e5b488565f85a4ae3dcb
+      m_ProfileName: Test_Profil
       m_Values:
       - m_Id: 315730dd74ac93e45b4caed087aced18
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
@@ -83,6 +98,8 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - Prefabs
+    - ComputeShader
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 27ff7b96746e5ce49b39fa3ae9a68c6a, type: 2}

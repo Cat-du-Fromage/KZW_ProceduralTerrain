@@ -1,0 +1,43 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel VerticesProcess
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+uint pointPerAxis;
+uint mapSize;
+uint numCellMap;
+uint radius;
+float spacing;
+
+RWStructuredBuffer<float3> grid;
+RWStructuredBuffer<int> cellIndex;
+
+float2 FindCell(float2 cellGrid, float2 vertPos)
+{
+    for (uint i = 0; i < numCellMap; i++)
+    {
+        //cellGrid.x = vertPos.x <= mad(i, radius, radius) ? i : numCellMap;
+        if ((uint)cellGrid.y == numCellMap) cellGrid.y = vertPos.y <= (float)(i * radius + radius) ? i : numCellMap;
+        if ((uint)cellGrid.x == numCellMap) cellGrid.x = vertPos.x <= (float)(i * radius + radius) ? i : numCellMap;
+        if ((uint)cellGrid.x != numCellMap && (uint)cellGrid.y != numCellMap) return cellGrid;
+    }
+    return cellGrid;
+}
+
+[numthreads(32,1,32)]
+void VerticesProcess(uint3 id : SV_DispatchThreadID)
+{
+	if (id.z < pointPerAxis && id.x < pointPerAxis)
+	{
+        const int index = id.z * pointPerAxis + id.x;
+		const float3 verticesPos = float3(id.x, 0, id.z) * float3(spacing, spacing, spacing);
+		grid[index] = verticesPos;
+		
+		//Cell attribution (for random samples calculation)
+        float2 cellGrid = float2(numCellMap, numCellMap);
+        cellGrid = FindCell(cellGrid, verticesPos.xz);
+        cellIndex[index] = (int)(cellGrid.y * numCellMap+cellGrid.x);
+	}
+}
+
+

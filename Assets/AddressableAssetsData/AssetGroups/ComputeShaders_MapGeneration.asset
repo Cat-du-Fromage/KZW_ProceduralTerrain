@@ -10,24 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Default Local Group
+  m_Name: ComputeShaders_MapGeneration
   m_EditorClassIdentifier: 
-  m_GroupName: Default Local Group
+  m_GroupName: ComputeShaders_MapGeneration
   m_Data:
     m_SerializedData: []
-  m_GUID: b2f91fa97b289584b9f61e1de1410c8e
+  m_GUID: fffde1306f3e1f9409709dda21761f1c
   m_SerializeEntries:
-  - m_GUID: 78a53adfebaa6014e92dab182485be87
-    m_Address: MapSettingsEntity
+  - m_GUID: 85c1013f9e443004e968763eb3884ac6
+    m_Address: VerticesProcess
     m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 5f0ca0f7e5bc0a44e84c7414529aa498
-    m_Address: MapSettingsSO
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - ComputeShader
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 65ed54cf22894714089a4b95391a34e6, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 4a4f565817aa8744ba7671b9e6145183, type: 2}
-    - {fileID: 11400000, guid: b4b828e0af5a9bd439c4eba9e1e055b0, type: 2}
+    - {fileID: 11400000, guid: b19b1493158d80a4296276c3cf97d1eb, type: 2}
+    - {fileID: 11400000, guid: fe41dce95ec45124a959f0aaa3f8fc8e, type: 2}

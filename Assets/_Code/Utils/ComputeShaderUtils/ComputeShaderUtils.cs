@@ -110,7 +110,8 @@ namespace KaizerWaldCode.Utils
         #endregion BufferCreation
 
         #region GPU Request Async
-        public static async Task<T[]> AsyncGpuRequest<T>(ComputeShader computeShader, int3 iteration, ComputeBuffer computeBuffer, int kernel = 0) where T : struct
+        public static async Task<T[]> AsyncGpuRequest<T>(ComputeShader computeShader, int3 iteration, ComputeBuffer computeBuffer, int kernel = 0) 
+            where T : struct
         {
             Dispatch(computeShader, iteration.x, iteration.y, iteration.z, kernel);
             AsyncGPUReadbackRequest request = AsyncGPUReadback.Request(computeBuffer);
@@ -120,6 +121,47 @@ namespace KaizerWaldCode.Utils
             }
             NativeArray<T> result = request.GetData<T>();
             return result.ToArray();
+        }
+
+        public static async Task<NativeArray<T>> AsyncGpuRequestNative<T>(ComputeShader computeShader, int3 iteration, ComputeBuffer computeBuffer, int kernel = 0) 
+            where T : struct
+        {
+            Dispatch(computeShader, iteration.x, iteration.y, iteration.z, kernel);
+            AsyncGPUReadbackRequest request = AsyncGPUReadback.Request(computeBuffer);
+            while (!request.done && !request.hasError)
+            {
+                await Task.Yield();
+            }
+            //NativeArray<T> result = request.GetData<T>();
+            return request.GetData<T>();
+        }
+
+        public static async Task<(NativeArray<T1>, NativeArray<T2>)> AsyncGpuRequestNative<T1, T2>(ComputeShader computeShader, int3 iteration, ComputeBuffer cB1, ComputeBuffer cB2, int kernel = 0) 
+            where T1 : struct
+            where T2 : struct
+        {
+            Dispatch(computeShader, iteration.x, iteration.y, iteration.z, kernel);
+            AsyncGPUReadbackRequest request1 = AsyncGPUReadback.Request(cB1);
+            AsyncGPUReadbackRequest request2 = AsyncGPUReadback.Request(cB2);
+            while (!request1.done && !request1.hasError && !request2.done && !request2.hasError)
+            {
+                await Task.Yield();
+            }
+            return (request1.GetData<T1>(), request2.GetData<T2>());
+        }
+
+        public static async Task<(T1[], T2[])> AsyncGpuRequest<T1, T2>(ComputeShader computeShader, int3 iteration, ComputeBuffer cB1, ComputeBuffer cB2, int kernel = 0)
+            where T1 : struct
+            where T2 : struct
+        {
+            Dispatch(computeShader, iteration.x, iteration.y, iteration.z, kernel);
+            AsyncGPUReadbackRequest request1 = AsyncGPUReadback.Request(cB1);
+            AsyncGPUReadbackRequest request2 = AsyncGPUReadback.Request(cB2);
+            while (!request1.done && !request1.hasError && !request2.done && !request2.hasError)
+            {
+                await Task.Yield();
+            }
+            return (request1.GetData<T1>().ToArray(), request2.GetData<T2>().ToArray());
         }
         #endregion GPU Request Async
     }
