@@ -45,7 +45,6 @@ namespace KaizerWaldCode.Utils
         public static void Dispatch(ComputeShader cs, int numIterationsX, int numIterationsY = 1, int numIterationsZ = 1, int kernelIndex = 0)
         {
             int3 threadGroupSizes = GetThreadGroupSizes(cs, kernelIndex);
-            Debug.Log(threadGroupSizes);
             int numGroupsX = (int)math.ceil(numIterationsX / (float)threadGroupSizes.x);
             int numGroupsY = (int)math.ceil(numIterationsY / (float)threadGroupSizes.y);
             int numGroupsZ = (int)math.ceil(numIterationsZ / (float)threadGroupSizes.z);
@@ -53,8 +52,7 @@ namespace KaizerWaldCode.Utils
         }
         public static int3 GetThreadGroupSizes(ComputeShader compute, int kernelIndex = 0)
         {
-            uint x, y, z;
-            compute.GetKernelThreadGroupSizes(kernelIndex, out x, out y, out z);
+            compute.GetKernelThreadGroupSizes(kernelIndex, out uint x, out uint y, out uint z);
             return new int3((int)x, (int)y, (int)z);
         }
         #endregion Dispatch

@@ -21,6 +21,14 @@ MonoBehaviour:
     m_Address: cubeTest
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 0fc8b67c10b23c348945d085908fcada
+    m_Address: TerrainTest.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f1a0751edba47ae4084fba83baccb5fb
+    m_Address: TerrainChunk
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 65ed54cf22894714089a4b95391a34e6, type: 2}
   m_SchemaSet:
