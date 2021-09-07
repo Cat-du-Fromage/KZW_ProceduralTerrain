@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
 using static Unity.Mathematics.math;
@@ -8,12 +9,13 @@ namespace KaizerWaldCode.Utils
 {
     public static class KWmath
     {
-        public static byte MinMax<T>(byte valmin, byte valMax) where T : struct
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte MinMax<T>(in byte valmin, in byte valMax) where T : struct
         {
             return (byte)max(valmin, min(valMax, (int)byte.MaxValue));
         }
-
-        public static int MinMax(int valmin, int valMax)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int MinMax(in int valmin, in int valMax)
         {
             return max(valmin, min(valMax, int.MaxValue));
         }
@@ -23,9 +25,10 @@ namespace KaizerWaldCode.Utils
         /// </summary>
         /// <param name="v">value to multiple by itself</param>
         /// <returns>(v * v)</returns>
-        public static int sq(int v)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int sq(in int v)
         {
-            return v*v;
+            return v * v;
         }
         /// <summary>
         /// Return the determinant of 2 vector
@@ -33,7 +36,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <returns></returns>
-        public static float Det(float2 v1, float2 v2)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Det(in float2 v1, in float2 v2)
         {
             return (v1.x * v2.y) - (v1.y * v2.x);
         }
@@ -44,7 +48,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <returns></returns>
-        public static float Det(float v1x, float v1y, float v2x, float v2y)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Det(in float v1x, in float v1y, in float v2x, in float v2y)
         {
             return (v1x * v2y) - (v1y * v2x);
         }
@@ -56,7 +61,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="v2">Mid part of the matrix (d/e/f)</param>
         /// <param name="v3">Top part of the matrix (a/b/c)</param>
         /// <returns></returns>
-        public static float Det(float3 v1, float3 v2, float3 v3)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Det(in float3 v1, in float3 v2, in float3 v3)
         {
             return v3.x * Det(float2(v2.y,v1.y), float2(v2.z, v1.z)) - v3.y * Det(float2(v2.x, v1.x), float2(v2.z, v1.z)) + v3.z * Det(float2(v2.x, v1.x), float2(v2.y, v1.y));
         }
@@ -68,7 +74,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="b"></param>
         /// <param name="c"></param>
         /// <returns></returns>
-        public static float Circumradius(float2 a, float2 b, float2 c)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Circumradius(in float2 a, in float2 b, in float2 c)
         {
             //CIRCUMCENTER!!
             float dx = b.x - a.x;
@@ -83,8 +90,8 @@ namespace KaizerWaldCode.Utils
             float y = (dx * cl - ex * bl) * d;
             return x * x + y * y;
         }
-
-        public static float2 GetCircumcenter(float2 a, float2 b, float2 c)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float2 GetCircumcenter(in float2 a, in float2 b, in float2 c)
         {
             float dx = b.x - a.x;
             float dy = b.y - a.y;
@@ -179,7 +186,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="b">end of the vector ab</param>
         /// <param name="c">point checked if positioned left to vector ab</param>
         /// <returns></returns>
-        public static bool IsLeft(float2 a, float2 b, float2 c)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsLeft(in float2 a, in float2 b, in float2 c)
         {
             return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
         }
@@ -192,7 +200,8 @@ namespace KaizerWaldCode.Utils
         /// <param name="b">end of the vector ab</param>
         /// <param name="c">point checked if positioned right to vector ab</param>
         /// <returns></returns>
-        public static bool IsRight(float2 a, float2 b, float2 c)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsRight(in float2 a, in float2 b, in float2 c)
         {
             return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) < 0;
         }
