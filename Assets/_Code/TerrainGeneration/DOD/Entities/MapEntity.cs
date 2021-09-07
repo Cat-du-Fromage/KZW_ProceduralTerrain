@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets;
 using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.KWmath;
 using Debug = UnityEngine.Debug;
+using System.Collections.Specialized;
 
 namespace KaizerWaldCode.TerrainGeneration.KwEntity
 {
@@ -45,12 +46,34 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
         private MapState state;
 
         private BitField32 bitfield;
+        
+
+        void testBitField()
+        {
+            BitArray testba = new BitArray(8);
+            BitVector32 bitVector32;
+
+            bitfield = new BitField32();
+            bitfield.SetBits(16, true, 16);
+
+            //bitfield.GetBits(1, 32);
+            Debug.Log($"{bitfield.GetBits(0, 16)} {bitfield.GetBits(16, 16)} Binary {Convert.ToString(bitfield.GetBits(16, 16), 2)}" );
+
+            Debug.Log($"CountTrailingZeros {bitfield.CountBits()}CountLeadingZeros {bitfield.CountLeadingZeros()}");
+
+            uint a = 0b00000001;
+            uint b = 1;
+            Debug.Log($"{((int)a)}  et  {a.ToString()}");
+            a |= bitfield.GetBits(16, 16) & 23u;
+            Debug.Log(Convert.ToString(a,2));
+        }
 
         void Awake()
         {
-            bitfield = new BitField32();
-            bitfield.SetBits(0,true,32);
-            Debug.Log(bitfield.Value);
+
+            testBitField();
+
+            
             filePath = $"{Application.persistentDataPath}/MapSettings/{nameof(MapEntity)}";
             if (JsonSerialization.SaveExist(filePath) && !newGame)
             {
