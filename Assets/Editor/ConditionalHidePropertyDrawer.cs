@@ -1,17 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine;
 using UnityEditor;
-using UnityEngine;
+using System.Collections.Generic;
 
+//Original version of the ConditionalHideAttribute created by Brecht Lecluyse (www.brechtos.com)
+//Modified by: Sebastian Lague
 namespace KaizerWaldCode
 {
+
     [CustomPropertyDrawer(typeof(ConditionalHideAttribute))]
     public class ConditionalHidePropertyDrawer : PropertyDrawer
     {
-
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            ConditionalHideAttribute condHAtt = (ConditionalHideAttribute)attribute;
+            ConditionalHideAttribute condHAtt = (ConditionalHideAttribute) attribute;
 
             bool enabled = GetConditionalHideAttributeResult(condHAtt, property) == condHAtt.showIfTrue;
 
@@ -23,13 +24,14 @@ namespace KaizerWaldCode
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            ConditionalHideAttribute condHAtt = (ConditionalHideAttribute)attribute;
+            ConditionalHideAttribute condHAtt = (ConditionalHideAttribute) attribute;
             bool enabled = GetConditionalHideAttributeResult(condHAtt, property) == condHAtt.showIfTrue;
 
             if (enabled)
             {
                 return EditorGUI.GetPropertyHeight(property, label);
             }
+
             //We want to undo the spacing added before and after the property
             return -EditorGUIUtility.standardVerticalSpacing;
 
@@ -42,8 +44,13 @@ namespace KaizerWaldCode
             //Get the full relative property path of the sourcefield so we can have nested hiding.Use old method when dealing with arrays
             if (!property.isArray)
             {
-                string propertyPath = property.propertyPath; //returns the property path of the property we want to apply the attribute to
-                string conditionPath = propertyPath.Replace(property.name, condHAtt.conditionalSourceField); //changes the path to the conditionalsource property path
+                string
+                    propertyPath =
+                        property
+                            .propertyPath; //returns the property path of the property we want to apply the attribute to
+                string conditionPath =
+                    propertyPath.Replace(property.name,
+                        condHAtt.conditionalSourceField); //changes the path to the conditionalsource property path
                 sourcePropertyValue = property.serializedObject.FindProperty(conditionPath);
 
                 //if the find failed->fall back to the old system
@@ -78,7 +85,8 @@ namespace KaizerWaldCode
                 case SerializedPropertyType.Enum:
                     return sourcePropertyValue.enumValueIndex == condHAtt.enumIndex;
                 default:
-                    Debug.LogError("Data type of the property used for conditional hiding [" + sourcePropertyValue.propertyType + "] is currently not supported");
+                    Debug.LogError("Data type of the property used for conditional hiding [" +
+                                   sourcePropertyValue.propertyType + "] is currently not supported");
                     return true;
             }
         }

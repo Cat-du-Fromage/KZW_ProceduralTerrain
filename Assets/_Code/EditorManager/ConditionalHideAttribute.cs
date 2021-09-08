@@ -1,11 +1,13 @@
+﻿using UnityEngine;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+//Original version of the ConditionalHideAttribute created by Brecht Lecluyse (www.brechtos.com)
+//Modified by: Sebastian Lague
 namespace KaizerWaldCode
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property |
+                    AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
     public class ConditionalHideAttribute : PropertyAttribute
     {
         public string conditionalSourceField;
@@ -26,3 +28,5 @@ namespace KaizerWaldCode
 
     }
 }
+
+

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
 using Unity.Collections;
@@ -13,8 +12,9 @@ using static KaizerWaldCode.Utils.KWmath;
 using Debug = UnityEngine.Debug;
 using System.Collections.Specialized;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration.KwEntity
 {
+    /*
     [Flags]
     public enum MapState
     {
@@ -27,12 +27,9 @@ namespace KaizerWaldCode
         FallOff = 6,
         End = 10
     }
-
+    */
     public class MapEntity : MonoBehaviour
     {
-        //bool test;
-
-        //[ConditionalHide(nameof(test), true)]
         [SerializeField] private bool newGame;
         [Min(1)]
         [SerializeField] private int chunkSize;
@@ -45,7 +42,7 @@ namespace KaizerWaldCode
 
         private string filePath;
 
-        private MapState state;
+        //private MapState state;
 
         private BitField32 bitfield;
         
@@ -118,7 +115,7 @@ namespace KaizerWaldCode
 
             //SI New Map on rest a 0 OU si BitField32 full 1 pareil
         }
-
+        /*
         void StateMachine(MapState newstate)
         {
             switch (newstate)
@@ -143,5 +140,6 @@ namespace KaizerWaldCode
                     throw new ArgumentOutOfRangeException(nameof(newstate), newstate, null);
             }
         }
+        */
     }
 }
