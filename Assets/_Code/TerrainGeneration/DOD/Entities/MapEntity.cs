@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
@@ -14,7 +13,7 @@ using static KaizerWaldCode.Utils.KWmath;
 using Debug = UnityEngine.Debug;
 using System.Collections.Specialized;
 
-namespace KaizerWaldCode.TerrainGeneration.KwEntity
+namespace KaizerWaldCode
 {
     [Flags]
     public enum MapState
@@ -31,6 +30,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
 
     public class MapEntity : MonoBehaviour
     {
+        //bool test;
+
+        //[ConditionalHide(nameof(test), true)]
         [SerializeField] private bool newGame;
         [Min(1)]
         [SerializeField] private int chunkSize;
