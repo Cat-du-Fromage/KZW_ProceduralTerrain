@@ -1,64 +1,67 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
 using KaizerWaldCode.TerrainGeneration.KwEntity;
 using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Mathematics;
 
 using static Unity.Mathematics.math;
+using static KaizerWaldCode.Utils.NativeCollectionUtils;
+using static KaizerWaldCode.Utils.KWmath;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
-    /*
-    struct MapDatasFilePath
+    public partial class MapSystem : MonoBehaviour
     {
-        const string SaveFilePath = "Saves Files";
-        public string folderPath;
+        private SettingsData mapSettings;
 
-        public MapDatasFilePath(string s)
-        {
-            folderPath = s;
-        }
-
-
-        public readonly string GetFullPath(string s)
-        {
-            return $"{Application.persistentDataPath}/Saves Files/{s}";
-        }
-    }
-    */
-    public class MapSystem : MonoBehaviour
-    {
         private BitField32 bitfield;
-
-        //CAREFUL the Folder may not be the same
         private string[] paths;
-        //private List<Action> method;
 
-        void Initialize(in string folderPath = "default")
+        public void Initialize(SettingsData mapSet, in string folderName = "default")
         {
-            bitfield = new BitField32();
-            paths = new string[8]
+            mapSettings = mapSet;
+            bitfield = new BitField32(uint.MaxValue);
+
+            string fullPath = $"{Application.persistentDataPath}/Saves Files/{folderName}";
+            if (!Directory.Exists(fullPath))
+                Directory.CreateDirectory(fullPath);
+
+            paths = new string[]
             {
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/VerticesPosition.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/VerticesCellIndex.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/PoissonDiscPosition.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/PoissonDiscCellIndex.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/Voronoi.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/IslandShape.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/Noise.txt",
-                $"{Application.persistentDataPath}/Saves Files/{folderPath}/FallOff.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderName}/VerticesPosition.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderName}/VerticesCellIndex.txt",
+                /*
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscPosition.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscCellIndex.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/Voronoi.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/IslandShape.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/Noise.txt",
+                $"{Application.persistentDataPath}/Save Files/{folderPath}/FallOff.txt",
+                */
             };
+            bitfield.SetBits(0,false, paths.Length);
 
             for (int i = 0; i < paths.Length; i++)
             {
-                if (BinarySerialization.SaveExist(paths[i]))
+                Debug.Log(paths[i].ToString());
+
+                if (!BinarySerialization.SaveExist(paths[i]))
+                {
+                    File.Create(paths[i]);
+                    StateMachineMap(i);
                     bitfield.SetBits(i, true);
+                }
                 else
-                    bitfield.SetBits(i, false);
+                {
+                    StateMachineMap(i);
+                    bitfield.SetBits(i, true);
+                }
             }
         }
 
@@ -68,7 +71,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 if (!bitfield.IsSet(i))
                 {
-                    //method[i].Invoke();
                     StateMachineMap(i);
                     bitfield.SetBits(i, true);
                 }
@@ -77,22 +79,33 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         void StateMachineMap(int state)
         {
+            JobHandle Dependency = new JobHandle();
             bitfield.SetBits(state, true);
             switch (state)
             {
-                case 1 << 0:
+                case 0:
+                    Debug.Log("Pos trying");
+                    NativeArray<float3> pos = AllocNtvAry<float3>(sq(mapSettings.MapPointPerAxis));
+                    NativeArray<int> id = AllocNtvAry<int>(sq(mapSettings.MapPointPerAxis));
+                    JobHandle vDependency = VerticesProcess(Dependency, pos, id, mapSettings);
+                    vDependency.Complete();
+                    BinarySerialization.Save(paths[state], pos.ToArray());
+                    BinarySerialization.Save(paths[1], id.ToArray());
+                    pos.Dispose();
+                    id.Dispose();
                     break;
-                case 1 << 1:
+                case 1:
+                    //int[] test = BinarySerialization.Load<int>(paths[1]);
                     break;
-                case 1 << 2:
+                case 2:
                     break;
-                case 1 << 3:
+                case 3:
                     break;
-                case 1 << 4:
+                case 4:
                     break;
-                case 1 << 5:
+                case 5:
                     break;
-                case 1 << 6:
+                case 6:
                     break;
                 default:
                     break;

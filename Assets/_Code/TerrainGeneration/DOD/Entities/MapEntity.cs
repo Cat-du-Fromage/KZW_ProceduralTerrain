@@ -100,46 +100,5 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
             JsonSerialization.Save(filePath, dataToSave);
         }
 
-        void Checker()
-        {
-            BitField32 state = new BitField32();
-
-            //VerticesPosition == Not(FILE Exist || NumVertices == MapPointPerAxis^2)
-            //Si Not FILE Exist => create file
-            //Si Not (CountVerticesInFile == MapPointPerAxis^2)
-
-            //VerticesCellIndex
-
-            //PoissonDiscPosition
-            //PoissonDiscCellIndex
-
-            //SI New Map on rest a 0 OU si BitField32 full 1 pareil
-        }
-        /*
-        void StateMachine(MapState newstate)
-        {
-            switch (newstate)
-            {
-                case MapState.Init:
-                    break;
-                case MapState.Vertex:
-                    break;
-                case MapState.Poisson:
-                    break;
-                case MapState.Voronoi:
-                    break;
-                case MapState.Island:
-                    break;
-                case MapState.Noise:
-                    break;
-                case MapState.FallOff:
-                    break;
-                case MapState.End:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newstate), newstate, null);
-            }
-        }
-        */
     }
 }

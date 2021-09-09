@@ -4,8 +4,13 @@ using System.IO;
 using KaizerWaldCode.TerrainGeneration;
 using KaizerWaldCode.TerrainGeneration.Data;
 using KaizerWaldCode.TerrainGeneration.KwEntity;
+using KaizerWaldCode.TerrainGeneration.KwSystem;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+
+using static KaizerWaldCode.Utils.AddressablesUtils;
 
 namespace KaizerWaldCode
 {
@@ -13,17 +18,15 @@ namespace KaizerWaldCode
     [CanEditMultipleObjects]
     public class EditorMapSettings : Editor
     {
-        [Header("New Game")]
-        private bool newGame;
-        private bool stateChange_NewGame;
+        //private bool newGame;
         private SerializedProperty mapSettings;
-
-        private bool posGroupEnabled = true;
+        private SerializedProperty newGame;
+        private SerializedProperty newGameName;
+        private SerializedProperty mapSystemPrefab;
 
         //Save Files
-        [Header("Save Files")] 
         public string[] files;
-        bool[] pos = new bool[3] { true, true, true };
+        bool[] pos = new bool[3] { false, false, false };
         
         //Internal Private fields
         private string savesFolder;
@@ -32,8 +35,9 @@ namespace KaizerWaldCode
 
         void Awake()
         {
-            //newGame = serializedObject.FindProperty("newGame");
             mapSettings = serializedObject.FindProperty("mapSettings");
+            newGame = serializedObject.FindProperty("NewGame");
+            mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
 
             savesFolder = $"{Application.persistentDataPath}/Save Files/";
             if (!Directory.Exists(savesFolder))
@@ -49,10 +53,9 @@ namespace KaizerWaldCode
         void OnValidate()
         {
             directory = new DirectoryInfo(savesFolder);
-
-            if (numSaves != directory.GetFiles("*.dat").Length)
+            if (numSaves != directory.GetDirectories().Length)
             {
-                numSaves = directory.GetFiles("*.dat").Length;
+                numSaves = directory.GetDirectories().Length;
                 files = new string[numSaves];
             }
 
@@ -61,13 +64,18 @@ namespace KaizerWaldCode
 
         public override void OnInspectorGUI()
         {
-            //DrawDefaultInspector();
+            DrawDefaultInspector();
             UIMapSettings uiSettings = (UIMapSettings)target;
 
-            mapSettings = serializedObject.FindProperty("mapSettings");
-            uiSettings.newGame = EditorGUILayout.Toggle("New Game", uiSettings.newGame);
-            if (uiSettings.newGame)
+            mapSettings = serializedObject.FindProperty("MapSettings");
+            newGame = serializedObject.FindProperty("NewGame");
+            newGameName = serializedObject.FindProperty("FolderName");
+
+            newGame.boolValue = EditorGUILayout.Toggle("New Game", newGame.boolValue);
+            if (newGame.boolValue)
             {
+                //EditorGUILayout.TextField("Save Name", uiSettings.FolderName);
+                EditorGUILayout.PropertyField(newGameName, new GUIContent("Save Name"));
                 GUI.enabled = false;
                 EditorGUILayout.PropertyField(mapSettings, new GUIContent("Map Settings"));
                 GUI.enabled = true;
@@ -80,32 +88,36 @@ namespace KaizerWaldCode
                 int nbChunk = mapSettings.FindPropertyRelative("NumChunk").intValue;
                 int nbPoint = mapSettings.FindPropertyRelative("PointPerMeter").intValue;
 
-                EditorGUILayout.IntField("Map Size", chunkSz * nbChunk);
-                EditorGUILayout.FloatField("Point Spacing", 1f / (nbPoint - 1f));
-                EditorGUILayout.IntField("ChunkPointPerAxis", (chunkSz * nbPoint) - (chunkSz - 1));
-                EditorGUILayout.IntField("MapPointPerAxis", (nbChunk * chunkSz) * nbPoint - (nbChunk * chunkSz - 1));
+                EditorGUILayout.IntField("Map Size", uiSettings.MapSettings.MapSize = chunkSz * nbChunk);
+                EditorGUILayout.FloatField("Point Spacing", uiSettings.MapSettings.PointSpacing = 1f / (nbPoint - 1f));
+                EditorGUILayout.IntField("ChunkPointPerAxis", uiSettings.MapSettings.ChunkPointPerAxis = (chunkSz * nbPoint) - (chunkSz - 1));
+                EditorGUILayout.IntField("MapPointPerAxis", uiSettings.MapSettings.MapPointPerAxis = (nbChunk * chunkSz) * nbPoint - (nbChunk * chunkSz - 1));
                 GUI.enabled = true;
-                //EditorGUILayout.IntField("Chunk Size", uiSettings.mapSettings.ChunkSize);
             }
             else
             {
                 directory = new DirectoryInfo(savesFolder);
-                using (var posGroup = new EditorGUILayout.ToggleGroupScope("Align position", posGroupEnabled))
-                {
-                    for (int i = 0; i < numSaves; i++)
-                    {
-                        posGroupEnabled = posGroup.enabled;
-                        pos[i] = EditorGUILayout.Toggle(files[i], pos[i]);
-                    }
-                }
 
-                if (GUILayout.Button("Generate"))
+                for (int i = 0; i < numSaves; i++)
                 {
-                    Debug.Log(mapSettings.FindPropertyRelative("ChunkSize").intValue);
+                    pos[i] = EditorGUILayout.Toggle(files[i], pos[i]);
                 }
             }
 
-            
+            if (GUILayout.Button("Generate"))
+            {
+                if (uiSettings.FolderName != string.Empty)
+                {
+                    
+                    mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
+                    AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
+                    csHandle.Result.GetComponent<MapSystem>().Initialize(uiSettings.MapSettings, uiSettings.FolderName);
+                    Addressables.Release(csHandle);
+                }
+                else
+                    Debug.Log("enter Folder Name");
+            }
+
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -113,18 +125,17 @@ namespace KaizerWaldCode
         //Found here : https://forum.unity.com/threads/find-all-files-in-folder-and-return-their-path-or-filename.941216/
         void GetFilesName(in string folderPath, ref string[] files, in int numSaves, in DirectoryInfo d)
         {
-            FileInfo[] filesInfo = d.GetFiles("*.dat");
+            DirectoryInfo[] filesInfo = directory.GetDirectories();
             for (int i = 0; i < numSaves; i++)
             {
                 files[i] = Path.GetFileNameWithoutExtension(filesInfo[i].Name);
-                Debug.Log(files[i]);
             }
         }
 
         void DirectoryAndNumSaves(out int numFiles, out DirectoryInfo dir)
         {
             dir = new DirectoryInfo(savesFolder);
-            numFiles = directory.GetFiles("*.dat").Length;
+            numFiles = directory.GetDirectories().Length;
         }
     }
 }

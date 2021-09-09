@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028328, g: 0.22571322, b: 0.30692163, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -278,15 +278,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fccf61c018c3db242899c95327314152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newGame: 1
-  mapSettings:
-    ChunkSize: 34
-    NumChunk: 4
-    PointPerMeter: 3
-    MapSize: 0
-    ChunkPointPerAxis: 0
-    MapPointPerAxis: 0
-    PointSpacing: 0
+  NewGame: 1
+  MapSettings:
+    ChunkSize: 2
+    NumChunk: 2
+    PointPerMeter: 2
+    MapSize: 4
+    ChunkPointPerAxis: 3
+    MapPointPerAxis: 5
+    PointSpacing: 1
+  FolderName: test3
+  MapSystemPrefab:
+    m_AssetGUID: e27f93a3944c84f4f8cb9046135d2f9f
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!1 &1423718069
 GameObject:
   m_ObjectHideFlags: 0

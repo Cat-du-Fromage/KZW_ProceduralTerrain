@@ -15,13 +15,14 @@ namespace KaizerWaldCode.KWSerialization
             FileStream file;
             if (!SaveExist(fullPath))
             {
-                file = File.Create($"{fullPath}.dat");
+                file = File.Create(fullPath);
                 bf.Serialize(file, data);
                 file.Close();
             }
             else
             {
-                file = File.Open($"{fullPath}.dat", FileMode.Open, FileAccess.Write);
+                File.WriteAllText(fullPath, string.Empty);
+                file = File.Open(fullPath, FileMode.Open, FileAccess.Write);
                 bf.Serialize(file, data);
                 file.Close();
             }
@@ -32,10 +33,10 @@ namespace KaizerWaldCode.KWSerialization
             BinaryFormatter bf = new BinaryFormatter();
 
             T[] saveObject = new T[] { };
-            if (!SaveExist(fullPath))
+            if (SaveExist(fullPath))
             {
-                FileStream file = File.Open($"{fullPath}.dat", FileMode.Open, FileAccess.Read);
-                saveObject = (T[])bf.Deserialize(file);
+                FileStream file = File.Open(fullPath, FileMode.Open, FileAccess.Read);
+                saveObject = bf.Deserialize(file) as T[];
                 file.Close();
             }
 
@@ -44,7 +45,7 @@ namespace KaizerWaldCode.KWSerialization
 
         public static bool SaveExist(in string fullPath)
         {
-            return File.Exists($"{fullPath}.dat");
+            return File.Exists(fullPath);
         }
     }
 }

@@ -17,6 +17,13 @@ namespace KaizerWaldCode.Utils
             return csHandle;
         }
 
+        public static AsyncOperationHandle<GameObject> InstanciateSingleAssetSync(AssetReference assetRef)
+        {
+            AsyncOperationHandle<GameObject> csHandle = Addressables.InstantiateAsync(assetRef);
+            csHandle.WaitForCompletion();
+            return csHandle;
+        }
+
         public static async Task CreateAssetAddToList<T>(AssetReference reference, List<T> completedObjs)
             where T : Object
         {
