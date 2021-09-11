@@ -13,24 +13,26 @@ using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.Utils.KWmath;
+using static KaizerWaldCode.KWSerialization.BinarySerialization;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     public partial class MapSystem : MonoBehaviour
     {
         private SettingsData mapSettings;
+        private int mapPointSurface;
 
         private BitField32 bitfield;
         private string[] paths;
 
-        public void Initialize(SettingsData mapSet, in string folderName = "default")
-        {
-            mapSettings = mapSet;
-            bitfield = new BitField32(uint.MaxValue);
+        private NativeArray<float3> verticesPos;
+        private NativeArray<int> verticesCellIndex;
 
-            string fullPath = $"{Application.persistentDataPath}/Saves Files/{folderName}";
-            if (!Directory.Exists(fullPath))
-                Directory.CreateDirectory(fullPath);
+        public void LoadMap(in SettingsData mapSet, in bool newGame, in string folderName = "default")
+        {
+            bitfield = new BitField32(uint.MaxValue);
+            mapSettings = mapSet;
+            mapPointSurface = sq(mapSet.MapPointPerAxis);
 
             paths = new string[]
             {
@@ -45,24 +47,37 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/FallOff.txt",
                 */
             };
+
+            string fullPath = $"{Application.persistentDataPath}/Save Files/{folderName}";
+
+            if (newGame)
+            {
+                LoadNewMap(fullPath);
+            }
+            else
+            {
+                LoadSavedMap(fullPath);
+            }
+
+        }
+
+        public void LoadSavedMap(in string directoryPath = "default")
+        {
+        }
+
+        public void LoadNewMap(in string directoryPath = "default")
+        {
+            if (!Directory.Exists(directoryPath)) {Directory.CreateDirectory(directoryPath);}
+
             bitfield.SetBits(0,false, paths.Length);
 
             for (int i = 0; i < paths.Length; i++)
             {
-                Debug.Log(paths[i].ToString());
-
-                if (!BinarySerialization.SaveExist(paths[i]))
-                {
-                    File.Create(paths[i]);
-                    StateMachineMap(i);
-                    bitfield.SetBits(i, true);
-                }
-                else
-                {
-                    StateMachineMap(i);
-                    bitfield.SetBits(i, true);
-                }
+                if (!SaveExist(paths[i])) { CreateCloseFile(paths[i]); }
+                StateMachineMap(i);
+                bitfield.SetBits(i, true);
             }
+            
         }
 
         void FillGap()
@@ -77,25 +92,43 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
 
-        void StateMachineMap(int state)
+        void NewGameProcess()
         {
-            JobHandle Dependency = new JobHandle();
-            bitfield.SetBits(state, true);
+            JobHandle generalDependency = new JobHandle();
+            JobHandle newGameDependency = new JobHandle();
+            verticesPos = AllocNtvAry<float3>(mapPointSurface);
+            verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
+            newGameDependency = VerticesDoubleProcess(generalDependency);
+            newGameDependency.Complete();
+            Save(paths[0], verticesPos.ToArray());
+            Save(paths[1], verticesCellIndex.ToArray());
+            verticesPos.Dispose();
+            verticesCellIndex.Dispose();
+        }
+
+        void StateMachineMap(in int state)
+        {
+            JobHandle generalDependency = new JobHandle();
             switch (state)
             {
                 case 0:
-                    Debug.Log("Pos trying");
-                    NativeArray<float3> pos = AllocNtvAry<float3>(sq(mapSettings.MapPointPerAxis));
-                    NativeArray<int> id = AllocNtvAry<int>(sq(mapSettings.MapPointPerAxis));
-                    JobHandle vDependency = VerticesProcess(Dependency, pos, id, mapSettings);
-                    vDependency.Complete();
-                    BinarySerialization.Save(paths[state], pos.ToArray());
-                    BinarySerialization.Save(paths[1], id.ToArray());
-                    pos.Dispose();
-                    id.Dispose();
+                    verticesPos = AllocNtvAry<float3>(mapPointSurface);
+
+                    VerticesPositionProcess(generalDependency);
+                    Save(paths[state], verticesPos.ToArray());
+
+                    verticesPos.Dispose();
                     break;
                 case 1:
-                    //int[] test = BinarySerialization.Load<int>(paths[1]);
+                    verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
+                    verticesPos = AllocNtvAry<float3>(mapPointSurface);
+                    verticesPos.CopyFrom(Load<float3>(paths[0]));
+
+                    VerticesCellIndexProcess(generalDependency);
+                    Save(paths[state], verticesCellIndex.ToArray());
+
+                    verticesPos.Dispose();
+                    verticesCellIndex.Dispose();
                     break;
                 case 2:
                     break;
@@ -112,11 +145,19 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
 
+        void OnDestroy()
+        {
+            if (verticesPos.IsCreated) verticesPos.Dispose();
+            if (verticesCellIndex.IsCreated) verticesCellIndex.Dispose();
+        }
+
+        /*
         // Update is called once per frame
         void Update()
         {
             if (bitfield.TestAll(0, 16) || paths.Length < 1) return;
             FillGap();
         }
+        */
     }
 }

@@ -12,7 +12,7 @@ namespace KaizerWaldCode
         public bool NewGame;
         [HideInInspector]
         public SettingsData MapSettings;
-        //[HideInInspector]
+        [HideInInspector]
         public string FolderName;
         public AssetReference MapSystemPrefab;
     }

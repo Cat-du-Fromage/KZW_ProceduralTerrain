@@ -12,11 +12,15 @@ namespace KaizerWaldCode.TerrainGeneration.Data
         public int ChunkSize;
         public int NumChunk;
         public int PointPerMeter;
+        public int Radius;
+        public uint Seed;
 
         public int MapSize;
         public int ChunkPointPerAxis;
         public int MapPointPerAxis;
+        public int NumCellMap;
         public float PointSpacing;
+        public float CellSize;
 
         public static implicit operator SettingsData(MapSettingsData data)
         {
@@ -29,6 +33,10 @@ namespace KaizerWaldCode.TerrainGeneration.Data
                 ChunkPointPerAxis = data.ChunkPointPerAxis,
                 MapPointPerAxis = data.MapPointPerAxis,
                 PointSpacing = data.PointSpacing,
+                Radius = data.Radius,
+                Seed = data.Seed,
+                NumCellMap = data.NumCellMap,
+                CellSize = data.CellSize,
             };
         }
     }
@@ -38,11 +46,15 @@ namespace KaizerWaldCode.TerrainGeneration.Data
         public int ChunkSize;
         public int NumChunk;
         public int PointPerMeter;
+        public int Radius;
+        public uint Seed;
 
         public int MapSize;
         public int ChunkPointPerAxis;
         public int MapPointPerAxis;
+        public int NumCellMap;
         public float PointSpacing;
+        public float CellSize;
 
         public static implicit operator MapSettingsData(SettingsData data)
         {
@@ -55,6 +67,10 @@ namespace KaizerWaldCode.TerrainGeneration.Data
                 ChunkPointPerAxis = data.ChunkPointPerAxis,
                 MapPointPerAxis = data.MapPointPerAxis,
                 PointSpacing = data.PointSpacing,
+                Radius = data.Radius,
+                Seed = data.Seed,
+                NumCellMap = data.NumCellMap,
+                CellSize = data.CellSize,
             };
         }
     }

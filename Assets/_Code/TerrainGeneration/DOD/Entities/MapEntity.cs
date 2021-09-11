@@ -11,6 +11,7 @@ using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.KWmath;
 using Debug = UnityEngine.Debug;
 using System.Collections.Specialized;
+using Unity.Mathematics;
 
 namespace KaizerWaldCode.TerrainGeneration.KwEntity
 {
@@ -37,6 +38,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
         [SerializeField] private int numChunk;
         [Range(2, 10)]
         [SerializeField] private int pointPerMeter;
+
+        [Min(1)]
+        [SerializeField] private uint seed;
+        [Min(1)]
+        [SerializeField] private int radius;
 
         public MapSettingsData Settings { get; private set; }
 
@@ -85,11 +91,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
                     ChunkSize = max(1, chunkSize),
                     NumChunk = max(1, numChunk),
                     PointPerMeter = MinMax(2, 10),
+                    Seed = max(1u, seed),
+                    Radius = max(1, radius),
 
                     MapSize = chunkSize * numChunk,
                     PointSpacing = 1f / (pointPerMeter - 1f),
                     ChunkPointPerAxis = (chunkSize * pointPerMeter) - (chunkSize - 1),
                     MapPointPerAxis = (numChunk * chunkSize) * pointPerMeter - (numChunk * chunkSize - 1),
+                    NumCellMap = (int)ceil(chunkSize / (float)max(1, radius) * numChunk),
+                    CellSize = max(1f, radius) / SQRT2,
                 };
             }
         }

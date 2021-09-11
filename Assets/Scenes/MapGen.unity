@@ -280,13 +280,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NewGame: 1
   MapSettings:
-    ChunkSize: 2
+    ChunkSize: 5
     NumChunk: 2
     PointPerMeter: 2
-    MapSize: 4
-    ChunkPointPerAxis: 3
-    MapPointPerAxis: 5
+    Radius: 2
+    Seed: 23
+    MapSize: 10
+    ChunkPointPerAxis: 6
+    MapPointPerAxis: 11
+    NumCellMap: 5
     PointSpacing: 1
+    CellSize: 1.4142135
   FolderName: test3
   MapSystemPrefab:
     m_AssetGUID: e27f93a3944c84f4f8cb9046135d2f9f
@@ -363,6 +367,8 @@ MonoBehaviour:
   chunkSize: 4
   numChunk: 5
   pointPerMeter: 3
+  seed: 0
+  radius: 0
 --- !u!1 &1562332896
 GameObject:
   m_ObjectHideFlags: 0

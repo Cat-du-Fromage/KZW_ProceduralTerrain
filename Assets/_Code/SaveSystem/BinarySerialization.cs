@@ -9,7 +9,7 @@ namespace KaizerWaldCode.KWSerialization
 {
     public static class BinarySerialization
     {
-        public static void Save<T>(in string fullPath, T[] data) where T : struct
+        public static void Save<T>(in string fullPath, in T[] data) where T : struct
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file;
@@ -26,6 +26,7 @@ namespace KaizerWaldCode.KWSerialization
                 bf.Serialize(file, data);
                 file.Close();
             }
+
         }
 
         public static T[] Load<T>(in string fullPath) where T : struct
@@ -39,13 +40,18 @@ namespace KaizerWaldCode.KWSerialization
                 saveObject = bf.Deserialize(file) as T[];
                 file.Close();
             }
-
             return saveObject;
         }
 
         public static bool SaveExist(in string fullPath)
         {
             return File.Exists(fullPath);
+        }
+
+        public static void CreateCloseFile(in string fullPath)
+        {
+            FileStream stream = File.Create(fullPath);
+            stream.Close();
         }
     }
 }

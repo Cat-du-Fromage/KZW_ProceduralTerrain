@@ -11,6 +11,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 using static KaizerWaldCode.Utils.AddressablesUtils;
+using static Unity.Mathematics.math;
 
 namespace KaizerWaldCode
 {
@@ -21,7 +22,7 @@ namespace KaizerWaldCode
         //private bool newGame;
         private SerializedProperty mapSettings;
         private SerializedProperty newGame;
-        private SerializedProperty newGameName;
+        private SerializedProperty folderName;
         private SerializedProperty mapSystemPrefab;
 
         //Save Files
@@ -35,15 +36,10 @@ namespace KaizerWaldCode
 
         void Awake()
         {
-            mapSettings = serializedObject.FindProperty("mapSettings");
-            newGame = serializedObject.FindProperty("NewGame");
-            mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
-
             savesFolder = $"{Application.persistentDataPath}/Save Files/";
-            if (!Directory.Exists(savesFolder))
-            {
-                Directory.CreateDirectory(savesFolder);
-            }
+            InitPropreties();
+
+            if (!Directory.Exists(savesFolder)) Directory.CreateDirectory(savesFolder);
 
             DirectoryAndNumSaves(out numSaves, out directory);
             files = new string[numSaves];
@@ -66,32 +62,34 @@ namespace KaizerWaldCode
         {
             DrawDefaultInspector();
             UIMapSettings uiSettings = (UIMapSettings)target;
-
-            mapSettings = serializedObject.FindProperty("MapSettings");
-            newGame = serializedObject.FindProperty("NewGame");
-            newGameName = serializedObject.FindProperty("FolderName");
+            InitPropreties();
 
             newGame.boolValue = EditorGUILayout.Toggle("New Game", newGame.boolValue);
             if (newGame.boolValue)
             {
                 //EditorGUILayout.TextField("Save Name", uiSettings.FolderName);
-                EditorGUILayout.PropertyField(newGameName, new GUIContent("Save Name"));
+                EditorGUILayout.PropertyField(folderName, new GUIContent("Save Name"));
                 GUI.enabled = false;
                 EditorGUILayout.PropertyField(mapSettings, new GUIContent("Map Settings"));
                 GUI.enabled = true;
                 EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("ChunkSize"), new GUIContent("Chunk Size"));
                 EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("NumChunk"), new GUIContent("Num Chunk"));
                 EditorGUILayout.IntSlider(mapSettings.FindPropertyRelative("PointPerMeter"), 2, 10);
+                EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("Seed"), new GUIContent("Seed"));
+                EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("Radius"), new GUIContent("Radius"));
 
                 GUI.enabled = false;
                 int chunkSz = mapSettings.FindPropertyRelative("ChunkSize").intValue;
                 int nbChunk = mapSettings.FindPropertyRelative("NumChunk").intValue;
                 int nbPoint = mapSettings.FindPropertyRelative("PointPerMeter").intValue;
+                int radius = mapSettings.FindPropertyRelative("Radius").intValue;
 
                 EditorGUILayout.IntField("Map Size", uiSettings.MapSettings.MapSize = chunkSz * nbChunk);
                 EditorGUILayout.FloatField("Point Spacing", uiSettings.MapSettings.PointSpacing = 1f / (nbPoint - 1f));
                 EditorGUILayout.IntField("ChunkPointPerAxis", uiSettings.MapSettings.ChunkPointPerAxis = (chunkSz * nbPoint) - (chunkSz - 1));
                 EditorGUILayout.IntField("MapPointPerAxis", uiSettings.MapSettings.MapPointPerAxis = (nbChunk * chunkSz) * nbPoint - (nbChunk * chunkSz - 1));
+                EditorGUILayout.IntField("NumCellMap", uiSettings.MapSettings.NumCellMap = (int)ceil(chunkSz / (float)max(1, radius) * nbChunk));
+                EditorGUILayout.FloatField("CellSize", uiSettings.MapSettings.CellSize = max(1f, radius) / SQRT2);
                 GUI.enabled = true;
             }
             else
@@ -108,10 +106,9 @@ namespace KaizerWaldCode
             {
                 if (uiSettings.FolderName != string.Empty)
                 {
-                    
                     mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
                     AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
-                    csHandle.Result.GetComponent<MapSystem>().Initialize(uiSettings.MapSettings, uiSettings.FolderName);
+                    csHandle.Result.GetComponent<MapSystem>().LoadMap(uiSettings.MapSettings, newGame.boolValue, uiSettings.FolderName);
                     Addressables.Release(csHandle);
                 }
                 else
@@ -136,6 +133,14 @@ namespace KaizerWaldCode
         {
             dir = new DirectoryInfo(savesFolder);
             numFiles = directory.GetDirectories().Length;
+        }
+
+        private void InitPropreties()
+        {
+            mapSettings = serializedObject.FindProperty("MapSettings");
+            newGame = serializedObject.FindProperty("NewGame");
+            mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
+            folderName = serializedObject.FindProperty("FolderName");
         }
     }
 }
