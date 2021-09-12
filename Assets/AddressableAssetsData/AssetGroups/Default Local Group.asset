@@ -25,10 +25,6 @@ MonoBehaviour:
     m_Address: MapSettingsSO
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: e27f93a3944c84f4f8cb9046135d2f9f
-    m_Address: MapSystemAsset.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 65ed54cf22894714089a4b95391a34e6, type: 2}
   m_SchemaSet:

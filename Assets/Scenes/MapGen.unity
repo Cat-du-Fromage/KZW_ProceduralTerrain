@@ -225,7 +225,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 603966607}
-  - component: {fileID: 603966606}
   - component: {fileID: 603966608}
   m_Layer: 0
   m_Name: test
@@ -234,24 +233,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &603966606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 603966605}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04d92915b22589848a84665285c68113, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ms: {fileID: 1423718070}
-  chunk:
-    m_AssetGUID: f1a0751edba47ae4084fba83baccb5fb
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
 --- !u!4 &603966607
 Transform:
   m_ObjectHideFlags: 0
@@ -260,7 +241,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 603966605}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.48321, y: -14.487822, z: 12.570158}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -280,15 +261,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NewGame: 1
   MapSettings:
-    ChunkSize: 5
+    ChunkSize: 2
     NumChunk: 2
     PointPerMeter: 2
     Radius: 2
     Seed: 23
-    MapSize: 10
-    ChunkPointPerAxis: 6
-    MapPointPerAxis: 11
-    NumCellMap: 5
+    MapSize: 4
+    ChunkPointPerAxis: 3
+    MapPointPerAxis: 5
+    NumCellMap: 2
     PointSpacing: 1
     CellSize: 1.4142135
   FolderName: test3

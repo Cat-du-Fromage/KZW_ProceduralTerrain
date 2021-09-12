@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
 using Unity.Burst;
@@ -12,6 +13,8 @@ using UnityEngine;
 using static Unity.Mathematics.math;
 using static Unity.Mathematics.float3;
 using static KaizerWaldCode.Utils.KWmath;
+using static KaizerWaldCode.Utils.NativeCollectionUtils;
+using static KaizerWaldCode.KWSerialization.BinarySerialization;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
@@ -34,6 +37,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private void VerticesPositionProcess(in JobHandle dependencySystem)
         {
+            verticesPos = AllocNtvAry<float3>(mapPointSurface);
             VerticesPosProcessJob verticesPosProcessJob = new VerticesPosProcessJob
             {
                 JMapPointPerAxis = mapSettings.MapPointPerAxis,
@@ -42,11 +46,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesPosProcessJobHandle = verticesPosProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesPosProcessJobHandle.Complete();
-            //return verticesPosProcessJobHandle;
+            Save(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesPos), verticesPos.ToArray());
+            verticesPos.Dispose();
         }
 
         private void VerticesCellIndexProcess(in JobHandle dependencySystem)
         {
+            verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
+            verticesPos = AllocNtvAry<float3>(mapPointSurface);
+            verticesPos.CopyFrom(Load<float3>(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesPos)));
             VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.MapPointPerAxis,
@@ -56,7 +64,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesCellIndexProcessJobHandle = verticesCellIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesCellIndexProcessJobHandle.Complete();
-            //return verticesCellIndexProcessJobHandle;
+            Save(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesCellIndex), verticesCellIndex.ToArray());
+            verticesPos.Dispose();
+            verticesCellIndex.Dispose();
         }
     }
 

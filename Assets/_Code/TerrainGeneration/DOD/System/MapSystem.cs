@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using KaizerWaldCode.KWSerialization;
+using System.Text;
 using KaizerWaldCode.TerrainGeneration.Data;
-using KaizerWaldCode.TerrainGeneration.KwEntity;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -23,10 +22,19 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         private int mapPointSurface;
 
         private BitField32 bitfield;
+        //FILES
+        private string saveFolder;
         private string[] paths;
+        private string chunksDataDirectory;
 
-        private NativeArray<float3> verticesPos;
-        private NativeArray<int> verticesCellIndex;
+        private GameObject[] chunks;
+
+        private NativeArray<float3> verticesPos; // raw position calcul
+        private NativeArray<int> verticesCellIndex; // raw position calcul
+
+        private NativeArray<float3> sortedVerticesPos; // use for chunkSlice
+
+        private JobHandle gDependency; // needed for jobs system
 
         public void LoadMap(in SettingsData mapSet, in bool newGame, in string folderName = "default")
         {
@@ -34,10 +42,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             mapSettings = mapSet;
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
+            GetOrCreateDirectories(folderName);
+
+            saveFolder = Path.Combine(Application.persistentDataPath, "SaveFiles", folderName);
             paths = new string[]
             {
-                $"{Application.persistentDataPath}/Save Files/{folderName}/VerticesPosition.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderName}/VerticesCellIndex.txt",
+                //Path.Combine(saveFolder, "VerticesPosition.txt"),
+                $"{dir.FullMapDatasPath}/VerticesPosition.txt",
+                //Path.Combine(saveFolder, "VerticesCellIndex.txt"),
+                $"{dir.FullMapDatasPath}/VerticesCellIndex.txt",
                 /*
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscPosition.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscCellIndex.txt",
@@ -48,32 +61,30 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 */
             };
 
-            string fullPath = $"{Application.persistentDataPath}/Save Files/{folderName}";
-
             if (newGame)
             {
-                LoadNewMap(fullPath);
+                LoadNewMap();
             }
             else
             {
-                LoadSavedMap(fullPath);
+                LoadSavedMap();
             }
 
         }
 
-        public void LoadSavedMap(in string directoryPath = "default")
+        public void LoadSavedMap()
         {
         }
 
-        public void LoadNewMap(in string directoryPath = "default")
+        public void LoadNewMap()
         {
-            if (!Directory.Exists(directoryPath)) {Directory.CreateDirectory(directoryPath);}
-
-            bitfield.SetBits(0,false, paths.Length);
+            bitfield.SetBits(0,false, paths.Length); //Full Map
+            //bitfield.SetBits(16, false, 2); //Chunk Slice
 
             for (int i = 0; i < paths.Length; i++)
             {
-                if (!SaveExist(paths[i])) { CreateCloseFile(paths[i]); }
+                if (bitfield.IsSet(i)) {continue;}
+                if (!SaveExist(files.GetFullMapFile(dir.FullMapDatasPath, i))) { CreateCloseFile(files.GetFullMapFile(dir.FullMapDatasPath, i)); }
                 StateMachineMap(i);
                 bitfield.SetBits(i, true);
             }
@@ -94,11 +105,10 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         void NewGameProcess()
         {
-            JobHandle generalDependency = new JobHandle();
             JobHandle newGameDependency = new JobHandle();
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
-            newGameDependency = VerticesDoubleProcess(generalDependency);
+            newGameDependency = VerticesDoubleProcess(gDependency);
             newGameDependency.Complete();
             Save(paths[0], verticesPos.ToArray());
             Save(paths[1], verticesCellIndex.ToArray());
@@ -108,27 +118,13 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         void StateMachineMap(in int state)
         {
-            JobHandle generalDependency = new JobHandle();
             switch (state)
             {
-                case 0:
-                    verticesPos = AllocNtvAry<float3>(mapPointSurface);
-
-                    VerticesPositionProcess(generalDependency);
-                    Save(paths[state], verticesPos.ToArray());
-
-                    verticesPos.Dispose();
+                case 0: 
+                    VerticesPositionProcess(gDependency);
                     break;
                 case 1:
-                    verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
-                    verticesPos = AllocNtvAry<float3>(mapPointSurface);
-                    verticesPos.CopyFrom(Load<float3>(paths[0]));
-
-                    VerticesCellIndexProcess(generalDependency);
-                    Save(paths[state], verticesCellIndex.ToArray());
-
-                    verticesPos.Dispose();
-                    verticesCellIndex.Dispose();
+                    VerticesCellIndexProcess(gDependency);
                     break;
                 case 2:
                     break;
@@ -142,13 +138,22 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     break;
                 default:
                     break;
+
+                    //CreateChunkProcess();
+                    //VerticesSliceProcess();
             }
+        }
+
+        void ChunkSliceStateMachine(in int state)
+        {
+
         }
 
         void OnDestroy()
         {
             if (verticesPos.IsCreated) verticesPos.Dispose();
             if (verticesCellIndex.IsCreated) verticesCellIndex.Dispose();
+            if (sortedVerticesPos.IsCreated) sortedVerticesPos.Dispose();
         }
 
         /*

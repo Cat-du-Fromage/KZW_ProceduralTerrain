@@ -52,7 +52,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
 
         private BitField32 bitfield;
         
-
+        /*
         void testBitField()
         {
             BitArray testba = new BitArray(8);
@@ -72,11 +72,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
             a |= bitfield.GetBits(16, 16) & 23u;
             Debug.Log(Convert.ToString(a,2));
         }
-
+        */
         void Awake()
         {
 
-            testBitField();
+            //testBitField();
 
             
             filePath = $"{Application.persistentDataPath}/MapSettings/{nameof(MapEntity)}";

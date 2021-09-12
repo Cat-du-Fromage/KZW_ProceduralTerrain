@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 8014998732450509423}
   - component: {fileID: 3773034924336624705}
   - component: {fileID: 5642748176171281021}
-  m_Layer: 0
+  - component: {fileID: 5103709807254729973}
+  m_Layer: 6
   m_Name: TerrainChunk
-  m_TagString: Untagged
+  m_TagString: Map Chunk
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97,3 +98,20 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &5103709807254729973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 490244301391011284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8514a95a4fc07d4ea439ec683c0f603, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 0
+  Position:
+    x: 0
+    y: 0
+  vertices: []

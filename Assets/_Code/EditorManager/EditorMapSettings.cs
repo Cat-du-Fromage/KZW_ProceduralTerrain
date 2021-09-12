@@ -13,7 +13,8 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using static KaizerWaldCode.Utils.AddressablesUtils;
 using static Unity.Mathematics.math;
 
-namespace KaizerWaldCode
+#if UNITY_EDITOR
+namespace KaizerWaldCode.KwEditor
 {
     [CustomEditor(typeof(UIMapSettings))]
     [CanEditMultipleObjects]
@@ -36,7 +37,7 @@ namespace KaizerWaldCode
 
         void Awake()
         {
-            savesFolder = $"{Application.persistentDataPath}/Save Files/";
+            savesFolder = $"{Application.persistentDataPath}/SaveFiles/";
             InitPropreties();
 
             if (!Directory.Exists(savesFolder)) Directory.CreateDirectory(savesFolder);
@@ -144,3 +145,4 @@ namespace KaizerWaldCode
         }
     }
 }
+#endif
