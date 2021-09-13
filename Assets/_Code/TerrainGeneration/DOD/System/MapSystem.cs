@@ -22,10 +22,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         private int mapPointSurface;
 
         private BitField32 bitfield;
-        //FILES
-        private string saveFolder;
-        private string[] paths;
-        private string chunksDataDirectory;
 
         private GameObject[] chunks;
 
@@ -33,6 +29,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         private NativeArray<int> verticesCellIndex; // raw position calcul
 
         private NativeArray<float3> sortedVerticesPos; // use for chunkSlice
+        private NativeArray<int> sortedVerticesCellIndex; // use for chunkSlice
 
         private JobHandle gDependency; // needed for jobs system
 
@@ -43,7 +40,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
             GetOrCreateDirectories(folderName);
-
+            /*
             saveFolder = Path.Combine(Application.persistentDataPath, "SaveFiles", folderName);
             paths = new string[]
             {
@@ -51,16 +48,16 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 $"{dir.FullMapDatasPath}/VerticesPosition.txt",
                 //Path.Combine(saveFolder, "VerticesCellIndex.txt"),
                 $"{dir.FullMapDatasPath}/VerticesCellIndex.txt",
-                /*
+                
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscPosition.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscCellIndex.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/Voronoi.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/IslandShape.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/Noise.txt",
                 $"{Application.persistentDataPath}/Save Files/{folderPath}/FallOff.txt",
-                */
+                
             };
-
+            */
             if (newGame)
             {
                 LoadNewMap();
@@ -78,42 +75,17 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public void LoadNewMap()
         {
-            bitfield.SetBits(0,false, paths.Length); //Full Map
+            bitfield.SetBits(0,false, dir.FullMapFilesPath.Length); //Full Map
             //bitfield.SetBits(16, false, 2); //Chunk Slice
 
-            for (int i = 0; i < paths.Length; i++)
+            for (int i = 0; i < dir.FullMapFilesPath.Length; i++)
             {
                 if (bitfield.IsSet(i)) {continue;}
-                if (!SaveExist(files.GetFullMapFile(dir.FullMapDatasPath, i))) { CreateCloseFile(files.GetFullMapFile(dir.FullMapDatasPath, i)); }
+                if ( !SaveExist(dir.GetFullMapFileAt(i)) ) { CreateFile(dir.GetFullMapFileAt(i)); }
                 StateMachineMap(i);
                 bitfield.SetBits(i, true);
             }
             
-        }
-
-        void FillGap()
-        {
-            for (int i = 0; i < paths.Length; i++)
-            {
-                if (!bitfield.IsSet(i))
-                {
-                    StateMachineMap(i);
-                    bitfield.SetBits(i, true);
-                }
-            }
-        }
-
-        void NewGameProcess()
-        {
-            JobHandle newGameDependency = new JobHandle();
-            verticesPos = AllocNtvAry<float3>(mapPointSurface);
-            verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
-            newGameDependency = VerticesDoubleProcess(gDependency);
-            newGameDependency.Complete();
-            Save(paths[0], verticesPos.ToArray());
-            Save(paths[1], verticesCellIndex.ToArray());
-            verticesPos.Dispose();
-            verticesCellIndex.Dispose();
         }
 
         void StateMachineMap(in int state)
@@ -125,6 +97,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     break;
                 case 1:
                     VerticesCellIndexProcess(gDependency);
+                    CreateChunkProcess();
+                    VerticesSliceProcess();
                     break;
                 case 2:
                     break;
@@ -154,6 +128,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             if (verticesPos.IsCreated) verticesPos.Dispose();
             if (verticesCellIndex.IsCreated) verticesCellIndex.Dispose();
             if (sortedVerticesPos.IsCreated) sortedVerticesPos.Dispose();
+            if (sortedVerticesCellIndex.IsCreated) sortedVerticesCellIndex.Dispose();
         }
 
         /*

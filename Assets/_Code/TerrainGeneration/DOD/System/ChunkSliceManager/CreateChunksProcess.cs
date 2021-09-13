@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using KaizerWaldCode.TerrainGeneration.Data;
@@ -25,6 +26,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             int chunkInScene = GameObject.FindGameObjectsWithTag("Map Chunk").Length;
             if (chunkInScene != sq(mapSettings.NumChunk))
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
                 int nbChunk = mapSettings.NumChunk;
                 int sizeChunk = mapSettings.ChunkSize;
                 chunks = new GameObject[sq(nbChunk)];
@@ -43,12 +46,13 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     ChunksData chunkObjData = chunkGameObj.GetComponent<ChunksData>();
                     chunkObjData.Id = i;
                     chunkObjData.Position = int2(posX, posY);
-                    chunkObjData.Vertices = new float3[sq(mapSettings.ChunkPointPerAxis)];
 
                     chunks[i] = chunkGameObj;
                 }
 
                 Addressables.Release(chunkAsset);
+                sw.Stop();
+                UnityEngine.Debug.Log($"CreateChunkProcess = {sw.ElapsedMilliseconds}");
             }
         }
 

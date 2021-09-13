@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+using static KaizerWaldCode.KWSerialization.BinarySerialization;
+
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     /// <summary>
@@ -12,76 +14,61 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     /// </summary>
     public partial class MapSystem : MonoBehaviour
     {
-        private MapFiles files;
+        // dir : reference to MapDirectories
 
         private void GetOrCreateFiles(in string folderName)
         {
 
         }
-    }
 
-    [Serializable]
-    struct MapFiles
-    {
-        public string FullMapDatasPath;
-
-        public readonly string[] FullMap
+        private void CreateChunksFiles(in int x, in int y, bool checkExist = true)
         {
-            get
-            {
-                return new string[]
+            if(checkExist)
+                for (int j = 0; j < dir.ChunkFilesPath.Length; j++)
                 {
-                    @"\VerticesPosition.txt",
-                    @"\VerticesCellIndex.txt",
-                    @"\PoissonDiscPosition.txt",
-                    @"\PoissonDiscCellIndex.txt",
-                    @"\Voronoi.txt",
-                    @"\IslandShape.txt",
-                    @"\Noise.txt",
-                    @"\FallOff.txt",
-                };
-            }
-        }
-        //triangles are the same for each chunk (since it only define the draw order of the mesh)
-        private const string ChunksTriangles = @"\Triangles.txt";
-
-        public readonly string[] Chunk
-        {
-            get
+                    if (File.Exists(dir.GetChunkFileAt(x, y, j))) continue;
+                    CreateFile(dir.GetChunkFileAt(x, y, j));
+                }
+            else
             {
-                return new string[]
+                for (int j = 0; j < dir.ChunkFilesPath.Length; j++)
                 {
-                    @"\VerticesPosition.txt",
-                    @"\VerticesCellIndex.txt",
-                    @"\Uvs.txt",
-                    @"\PoissonDiscPosition.txt",
-                    @"\PoissonDiscCellIndex.txt",
-                };
+                    CreateFile(dir.GetChunkFileAt(x, y, j));
+                }
             }
         }
 
-        public readonly string GetFullMapFile(in string mapDataPath, in int file)
+        private void CreateFullMapFiles(bool checkExist = true)
         {
-            return $"{mapDataPath}{FullMap[file]}";
+            if (checkExist)
+                for (int j = 0; j < dir.FullMapFilesPath.Length; j++)
+                {
+                    if (File.Exists(dir.GetFullMapFileAt(j))) continue;
+                    CreateFile(dir.GetFullMapFileAt(j));
+                }
+            else
+            {
+                for (int j = 0; j < dir.FullMapFilesPath.Length; j++)
+                {
+                    CreateFile(dir.GetFullMapFileAt(j));
+                }
+            }
         }
 
-        public readonly string GetChunkFile(in string chunkPath, ChunkFiles file)
+        private void CreateTrianglesFile(bool checkExist = true)
         {
-            return $"{chunkPath}{Chunk[(int)file]}";
+            if (checkExist)
+            {
+                if ( File.Exists(dir.GetChunksTriangleFile()) ) return;
+                CreateFile(dir.GetChunksTriangleFile());
+            }
+            else
+            {
+                CreateFile(dir.GetChunksTriangleFile());
+            }
         }
     }
 
-    public enum ChunkFiles
-    {
-        VerticesPos = 0,
-        VerticesCellIndex = 1,
-        Uvs = 2,
-    }
 
-    public enum EFullMapFiles
-    {
-        VerticesPos = 0,
-        VerticesCellIndex = 1,
-        Uvs = 2,
-    }
+
 }

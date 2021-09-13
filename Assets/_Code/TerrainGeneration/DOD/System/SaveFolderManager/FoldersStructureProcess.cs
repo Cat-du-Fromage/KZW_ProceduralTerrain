@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using Unity.Mathematics;
 using UnityEngine;
 using static KaizerWaldCode.Utils.KWmath;
 using static Unity.Mathematics.math;
@@ -16,12 +19,25 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private void GetOrCreateDirectories(in string folderName)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             dir.SelectedSave = folderName;
 
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
             if (!Directory.Exists(dir.MapDatasPath)) { Directory.CreateDirectory(dir.MapDatasPath); }
-            if (!Directory.Exists(dir.FullMapDatasPath)) { Directory.CreateDirectory(dir.FullMapDatasPath); }
+
+            if (!Directory.Exists(dir.FullMapDatasPath)) 
+            { 
+                Directory.CreateDirectory(dir.FullMapDatasPath);
+                CreateFullMapFiles(false);
+            }
+            else
+            {
+                CreateFullMapFiles(true);
+            }
+
             if (!Directory.Exists(dir.ChunksPath)) { Directory.CreateDirectory(dir.ChunksPath); }
+            CreateTrianglesFile();
 
             //individual Chunks Folder
             //string chunkPath;
@@ -29,15 +45,23 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 int ChunkPosY = (int)floor(i / (float)mapSettings.NumChunk);
                 int ChunkPosX = i - (ChunkPosY * mapSettings.NumChunk);
-                //string chunkDir = dir.GetChunk(ChunkPosX, ChunkPosY);
 
-                //chunkPath = Path.Combine(dir.ChunksPath, chunkDir); // full path -> MapDatas -> ChunkX(PosX)Y(PosY)
-                if (!Directory.Exists(dir.GetChunk(ChunkPosX, ChunkPosY))) { Directory.CreateDirectory(dir.GetChunk(ChunkPosX, ChunkPosY)); }
+                if (!Directory.Exists(dir.GetChunk(ChunkPosX, ChunkPosY))) 
+                {
+                    Directory.CreateDirectory(dir.GetChunk(ChunkPosX, ChunkPosY));
+                    CreateChunksFiles(ChunkPosX, ChunkPosY, false);
+                }
+                else
+                {
+                    CreateChunksFiles(ChunkPosX, ChunkPosY, true);
+                }
             }
+            sw.Stop();
+            UnityEngine.Debug.Log($"GetOrCreateDirectories = {sw.Elapsed}");
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     struct MapDirectories
     {
         public string SelectedSave;
@@ -57,5 +81,98 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         public readonly string MapDatasPath { get { return Path.Combine(SelectSavePath, MapDatas); } }
         public readonly string FullMapDatasPath { get { return Path.Combine(MapDatasPath, FullMapDatas); } }
         public readonly string ChunksPath { get { return Path.Combine(MapDatasPath, Chunks); } }
+
+        #region FILES
+
+        public readonly string GetFullMapFileAt(in int file)
+        {
+            return $"{FullMapDatasPath}{FullMapFilesPath[file]}";
+        }
+
+        public readonly string GetChunksTriangleFile()
+        {
+            return $"{ChunksPath}{ChunksTrianglesFile}";
+        }
+        /// <summary>
+        /// Return the path to a given chunk (depending on x,y value entered)
+        /// </summary>
+        /// <param name="x">X Position of the chunk</param>
+        /// <param name="y">Y position of the chunk</param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public readonly string GetChunkFileAt(in int x, in int y, in int file)
+        {
+            if (file == 3)
+                return GetChunksTriangleFile();
+            else
+                return $"{GetChunk(x, y)}{ChunkFilesPath[file]}";
+        }
+
+        public readonly string GetChunkFileAt(in int2 Pos, in int file)
+        {
+            if (file == 3)
+                return GetChunksTriangleFile();
+            else
+                return $"{GetChunk(Pos.x, Pos.y)}{ChunkFilesPath[file]}";
+        }
+
+
+        /// <summary>
+        /// Array containing all files path for the map as a whole
+        /// </summary>
+        public readonly string[] FullMapFilesPath
+        {
+            get
+            {
+                return new string[]
+                {
+                    @"\VerticesPosition.txt",
+                    @"\VerticesCellIndex.txt",
+                    @"\PoissonDiscPosition.txt",
+                    @"\PoissonDiscCellIndex.txt",
+                    @"\Voronoi.txt",
+                    @"\IslandShape.txt",
+                    @"\Noise.txt",
+                    @"\FallOff.txt",
+                };
+            }
+        }
+
+        //triangles are the same for each chunk (since it only define the draw order of the mesh)
+        private const string ChunksTrianglesFile = @"\Triangles.txt";
+
+        /// <summary>
+        /// Array containing all files path for each chunk
+        /// </summary>
+        public readonly string[] ChunkFilesPath
+        {
+            get
+            {
+                return new string[]
+                {
+                    @"\VerticesPosition.txt",
+                    @"\VerticesCellIndex.txt",
+                    @"\Uvs.txt",
+                    @"\PoissonDiscPosition.txt",
+                    @"\PoissonDiscCellIndex.txt",
+                };
+            }
+        }
+        #endregion FILES
+    }
+
+    [Flags]
+    public enum ChunkFiles : int
+    {
+        VerticesPos = 0,
+        VerticesCellIndex = 1,
+        Uvs = 2,
+        Triangles = 3,
+    }
+    [Flags]
+    public enum FullMapFiles : int
+    {
+        VerticesPos = 0,
+        VerticesCellIndex = 1,
     }
 }

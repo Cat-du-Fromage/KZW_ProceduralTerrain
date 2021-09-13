@@ -17,16 +17,15 @@ namespace KaizerWaldCode.KWSerialization
             {
                 file = File.Create(fullPath);
                 bf.Serialize(file, data);
-                file.Close();
             }
             else
             {
                 File.WriteAllText(fullPath, string.Empty);
                 file = File.Open(fullPath, FileMode.Open, FileAccess.Write);
                 bf.Serialize(file, data);
-                file.Close();
             }
-
+            file.Close();
+            file.Dispose();
         }
 
         public static T[] Load<T>(in string fullPath) where T : struct
@@ -37,8 +36,12 @@ namespace KaizerWaldCode.KWSerialization
             if (SaveExist(fullPath))
             {
                 FileStream file = File.Open(fullPath, FileMode.Open, FileAccess.Read);
-                saveObject = bf.Deserialize(file) as T[];
-                file.Close();
+                if(file.Length != 0)
+                {
+                    saveObject = bf.Deserialize(file) as T[];
+                    file.Close();
+                    file.Dispose();
+                }
             }
             return saveObject;
         }
@@ -48,10 +51,11 @@ namespace KaizerWaldCode.KWSerialization
             return File.Exists(fullPath);
         }
 
-        public static void CreateCloseFile(in string fullPath)
+        public static void CreateFile(in string fullPath)
         {
             FileStream stream = File.Create(fullPath);
             stream.Close();
+            stream.Dispose();
         }
     }
 }

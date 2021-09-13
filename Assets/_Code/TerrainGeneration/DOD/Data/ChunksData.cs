@@ -9,6 +9,5 @@ namespace KaizerWaldCode.TerrainGeneration.Data
     {
         public int Id;
         public int2 Position;
-        public float3[] Vertices;
     }
 }

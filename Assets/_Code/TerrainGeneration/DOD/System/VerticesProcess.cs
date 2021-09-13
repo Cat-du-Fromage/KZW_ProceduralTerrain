@@ -46,7 +46,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesPosProcessJobHandle = verticesPosProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesPosProcessJobHandle.Complete();
-            Save(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesPos), verticesPos.ToArray());
+            Save(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos), verticesPos.ToArray());
             verticesPos.Dispose();
         }
 
@@ -54,7 +54,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         {
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
-            verticesPos.CopyFrom(Load<float3>(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesPos)));
+            verticesPos.CopyFrom(Load<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
             VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.MapPointPerAxis,
@@ -64,7 +64,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesCellIndexProcessJobHandle = verticesCellIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesCellIndexProcessJobHandle.Complete();
-            Save(files.GetFullMapFile(dir.FullMapDatasPath, (int)EFullMapFiles.VerticesCellIndex), verticesCellIndex.ToArray());
+            Save(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex), verticesCellIndex.ToArray());
             verticesPos.Dispose();
             verticesCellIndex.Dispose();
         }
