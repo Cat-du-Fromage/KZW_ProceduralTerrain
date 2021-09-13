@@ -1,1 +1,0 @@
-ILMerge.exe /out:nuget\zfc.exe /ndebug /targetplatform:v4 /wildcards src\ZeroFormatter.CodeGenerator\bin\Release\zfc.exe src\ZeroFormatter.CodeGenerator\bin\Release\*.dll

@@ -4,6 +4,8 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using ZeroFormatter;
+using ZeroFormatter.Formatters;
 
 namespace KaizerWaldCode.KWSerialization
 {
@@ -58,9 +60,45 @@ namespace KaizerWaldCode.KWSerialization
             stream.Dispose();
         }
 
-        public static void LoadBuffered()
+        public static void ZFSave<T>(in string fullPath, in T[] data) where T : struct
         {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file;
+            if (!SaveExist(fullPath))
+            {
+                file = File.Create(fullPath);
+                ZeroFormatterSerializer.Serialize(file, data);
+                //bf.Serialize(file, data);
+            }
+            else
+            {
+                File.WriteAllText(fullPath, string.Empty);
+                file = File.Open(fullPath, FileMode.Open, FileAccess.Write);
+                ZeroFormatterSerializer.Serialize(file, data);
+                //bf.Serialize(file, data);
+            }
+            file.Close();
+            file.Dispose();
+        }
 
+        public static T[] ZFLoad<T>(in string fullPath) where T : struct
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+
+            T[] saveObject = new T[] { };
+            if (SaveExist(fullPath))
+            {
+                FileStream file = File.Open(fullPath, FileMode.Open, FileAccess.Read);
+                if (file.Length != 0)
+                {
+                    //saveObject = bf.Deserialize(file) as T[];
+                    byte[] bytesRead = File.ReadAllBytes(fullPath);
+                    saveObject = ZeroFormatterSerializer.Deserialize<T[]>(file);
+                    file.Close();
+                    file.Dispose();
+                }
+            }
+            return saveObject;
         }
     }
 }

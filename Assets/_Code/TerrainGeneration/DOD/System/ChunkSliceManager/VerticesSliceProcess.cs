@@ -33,8 +33,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            verticesPos.CopyFrom(Load<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
-            verticesCellIndex.CopyFrom(Load<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
+            verticesPos.CopyFrom(ZFLoad<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
+            verticesCellIndex.CopyFrom(ZFLoad<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
             sw.Stop();
             UnityEngine.Debug.Log($"Loading Process {sw.Elapsed}");
             sw.Restart();
