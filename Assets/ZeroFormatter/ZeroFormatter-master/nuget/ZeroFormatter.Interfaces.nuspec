@@ -1,0 +1,38 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>ZeroFormatter.Interfaces</id>
+        <version>1.6.4</version>
+        <title>ZeroFormatter.Interfaces</title>
+        <authors>neuecc</authors>
+        <owners>y.neuecc</owners>
+        <projectUrl>https://github.com/neuecc/ZeroFormatter/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Plain interfaces and KeyTuple of ZeroFormatter, it is used for define serializable targets.</description>
+        <releaseNotes>modify resolver priority for extend types. add -u option for zfc.exe.</releaseNotes>
+        <tags>ZeroFormatter, Serialization, Formatter, Serializer</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework3.5" />
+        </frameworkAssemblies>
+        <dependencies>
+            <group targetFramework="Unity Full v3.5">
+            </group>
+            <group targetFramework=".NETFramework3.5">
+            </group>
+            <group targetFramework=".NETFramework4.5">
+            </group>
+            <group targetFramework=".NETStandard1.1">
+                <dependency id="System.Runtime" version="4.1.0" />
+                <dependency id="System.Linq" version="4.1.0" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\tests\ZeroFormatter.UnityTests\Assets\Dlls\ZeroFormatter.Interfaces.dll" target="lib\net35" />
+        <file src="..\tests\ZeroFormatter.UnityTests\Assets\Dlls\ZeroFormatter.Interfaces.dll" target="lib\net35-Unity Full v3.5" />
+        <file src="..\src\ZeroFormatter.Interfaces\bin\Release\ZeroFormatter.Interfaces.dll" target="lib\net45" />
+        <file src="..\src\ZeroFormatter.Interfaces.NETCore\bin\Release\netstandard1.1\ZeroFormatter.Interfaces.dll" target="lib\netstandard1.1" />
+        <file src="zfc.exe" target="tools\" />
+        <file src="zfc.exe.config" target="tools\" />
+    </files>
+</package>

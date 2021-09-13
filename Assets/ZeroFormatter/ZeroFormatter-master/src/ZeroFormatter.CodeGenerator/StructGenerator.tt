@@ -1,0 +1,90 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+#pragma warning disable 618
+#pragma warning disable 612
+#pragma warning disable 414
+#pragma warning disable 168
+namespace <#= Namespace #>
+{
+    using global::System;
+    using global::ZeroFormatter.Formatters;
+    using global::ZeroFormatter.Internal;
+    using global::ZeroFormatter.Segments;
+
+<#
+   var resolverName = (ForceDefaultResolver) ? "ZeroFormatter.Formatters.DefaultResolver" : "TTypeResolver";
+   var resolverNameGenericArg = (ForceDefaultResolver) ? "" : "<TTypeResolver>";
+#>
+<# foreach(var t in Types) {  #>
+    public class <#= t.Name #>Formatter<#= resolverNameGenericArg #> : Formatter<<#= resolverName #>, <#= t.FullName #>>
+<# if(!ForceDefaultResolver) { #>
+        where <#= resolverName #> : ITypeResolver, new()
+<# } #>
+    {
+<# for(var i = 0; i < t.Properties.Length; i++) { var p = t.Properties[i]; #>
+        readonly Formatter<<#= resolverName #>, <#= p.Type #>> formatter<#= i #>;
+<# } #>
+        
+<# if (t.Properties.Length != 0) { #>
+        public override bool NoUseDirtyTracker
+        {
+            get
+            {
+                return formatter0.NoUseDirtyTracker
+<# for(var i = 1; i < t.Properties.Length; i++) { var p = t.Properties[i]; #>
+                    && formatter<#= i #>.NoUseDirtyTracker
+<# } #>
+                ;
+            }
+        }
+<# } #>
+
+        public <#= t.Name #>Formatter()
+        {
+<# for(var i = 0; i < t.Properties.Length; i++) { var p = t.Properties[i]; #>
+            formatter<#= i #> = Formatter<<#= resolverName #>, <#= p.Type #>>.Default;
+<# } #>            
+        }
+
+        public override int? GetLength()
+        {
+            return <#= (t.GetLength() == null) ? "null" : t.GetLength().ToString() #>;
+        }
+
+        public override int Serialize(ref byte[] bytes, int offset, <#= t.FullName #> value)
+        {
+<# if (t.GetLength() != null) { #>
+            BinaryUtil.EnsureCapacity(ref bytes, offset, <#= t.GetLength() #>);
+<# } #>
+            var startOffset = offset;
+<# for(var i = 0; i < t.Properties.Length; i++) { var p = t.Properties[i]; #>
+            offset += formatter<#= i #>.Serialize(ref bytes, offset, value.<#= p.Name #>);
+<# } #>
+            return offset - startOffset;
+        }
+
+        public override <#= t.FullName #> Deserialize(ref byte[] bytes, int offset, global::ZeroFormatter.DirtyTracker tracker, out int byteSize)
+        {
+            byteSize = 0;
+            int size;
+<# for(var i = 0; i < t.Properties.Length; i++) { var p = t.Properties[i]; #>
+            var item<#= i #> = formatter<#= i #>.Deserialize(ref bytes, offset, tracker, out size);
+            offset += size;
+            byteSize += size;
+<# } #>
+            
+            return new <#= t.FullName #>(<#= string.Join(", ",  t.Properties.Select((_, i)=> "item" + i).ToArray()) #>);
+        }
+    }
+
+<# } #>
+
+}
+
+#pragma warning restore 168
+#pragma warning restore 414
+#pragma warning restore 618
+#pragma warning restore 612

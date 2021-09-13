@@ -1,0 +1,124 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+#pragma warning disable 618
+#pragma warning disable 612
+#pragma warning disable 414
+#pragma warning disable 168
+namespace <#= Namespace #>
+{
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::ZeroFormatter.Formatters;
+    using global::ZeroFormatter.Internal;
+    using global::ZeroFormatter.Segments;
+
+<#
+   var resolverName = (ForceDefaultResolver) ? "ZeroFormatter.Formatters.DefaultResolver" : "TTypeResolver";
+   var resolverNameGenericArg = (ForceDefaultResolver) ? "" : "<TTypeResolver>";
+#>
+<# foreach(var t in Types) {  #>
+
+    public class <#= t.Name #>Formatter<#= resolverNameGenericArg #> : Formatter<<#= resolverName #>, <#= t.FullName #>>
+<# if(!ForceDefaultResolver) { #>
+        where <#= resolverName #> : ITypeResolver, new()
+<# } #>
+    {
+        public override int? GetLength()
+        {
+            return <#= t.Length #>;
+        }
+
+        public override int Serialize(ref byte[] bytes, int offset, <#= t.FullName #> value)
+        {
+            return BinaryUtil.Write<#= t.UnderlyingType #>(ref bytes, offset, (<#= t.UnderlyingType #>)value);
+        }
+
+        public override <#= t.FullName #> Deserialize(ref byte[] bytes, int offset, global::ZeroFormatter.DirtyTracker tracker, out int byteSize)
+        {
+            byteSize = <#= t.Length #>;
+            return (<#= t.FullName #>)BinaryUtil.Read<#= t.UnderlyingType #>(ref bytes, offset);
+        }
+    }
+
+<# if (t.IncludeNullable) { #>
+
+    public class Nullable<#= t.Name #>Formatter<#= resolverNameGenericArg #> : Formatter<<#= resolverName #>, <#= t.FullName #>?>
+<# if(!ForceDefaultResolver) { #>
+        where <#= resolverName #> : ITypeResolver, new()
+<# } #>
+    {
+        public override int? GetLength()
+        {
+            return <#= t.Length + 1 #>;
+        }
+
+        public override int Serialize(ref byte[] bytes, int offset, <#= t.FullName #>? value)
+        {
+            BinaryUtil.WriteBoolean(ref bytes, offset, value.HasValue);
+            if (value.HasValue)
+            {
+                BinaryUtil.Write<#= t.UnderlyingType #>(ref bytes, offset + 1, (<#= t.UnderlyingType #>)value.Value);
+            }
+            else
+            {
+                BinaryUtil.EnsureCapacity(ref bytes, offset, offset + <#= t.Length + 1 #>);
+            }
+
+            return <#= t.Length + 1 #>;
+        }
+
+        public override <#= t.FullName #>? Deserialize(ref byte[] bytes, int offset, global::ZeroFormatter.DirtyTracker tracker, out int byteSize)
+        {
+            byteSize = <#= t.Length + 1 #>;
+            var hasValue = BinaryUtil.ReadBoolean(ref bytes, offset);
+            if (!hasValue) return null;
+
+            return (<#= t.FullName #>)BinaryUtil.Read<#= t.UnderlyingType #>(ref bytes, offset + 1);
+        }
+    }
+
+<# } #>
+
+<# if(t.IsGenerateEqualityComparer) { #>
+
+    public class <#= t.Name #>EqualityComparer : IEqualityComparer<<#= t.FullName #>>
+    {
+        public bool Equals(<#= t.FullName #> x, <#= t.FullName #> y)
+        {
+            return (<#= t.UnderlyingType #>)x == (<#= t.UnderlyingType #>)y;
+        }
+
+        public int GetHashCode(<#= t.FullName #> x)
+        {
+<# if(t.UnderlyingType == "Byte") { #>
+            return (int)(Byte)x;
+<# } else if(t.UnderlyingType == "SByte") { #>
+             return (int)(SByte)x ^ (int)(SByte)x << 8; 
+<# } else if(t.UnderlyingType == "Int16") { #>
+            return (int)((Int16)x) | (int)(Int16)x << 16;
+<# } else if(t.UnderlyingType == "UInt16") { #>
+            return (int)(UInt16)x;
+<# } else if(t.UnderlyingType == "UInt32") { #>
+            return (int)(UInt32)x;
+<# } else if(t.UnderlyingType == "UInt64") { #>
+            return (int)(UInt64)x ^ (int)((UInt64)x >> 32);
+<# } else if(t.UnderlyingType == "Int64") { #>
+            return (int)(Int64)x ^ (int)((Int64)x >> 32);
+<# } else { #>
+            return (int)x;
+<# } #>
+        }
+    }
+
+<# } #>
+
+<# } #>
+
+}
+#pragma warning restore 168
+#pragma warning restore 414
+#pragma warning restore 618
+#pragma warning restore 612

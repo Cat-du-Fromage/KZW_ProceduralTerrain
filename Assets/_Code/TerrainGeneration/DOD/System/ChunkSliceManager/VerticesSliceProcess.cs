@@ -23,20 +23,26 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
         private void VerticesSliceProcess()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            
             //Vertices Position
             verticesPos = AllocNtvAry<float3>(sq(mapSettings.MapPointPerAxis));
-            verticesPos.CopyFrom(Load<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
             sortedVerticesPos = AllocNtvAry<float3>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
 
             //Vertices Cell Index
             verticesCellIndex = AllocNtvAry<int>(sq(mapSettings.MapPointPerAxis));
-            verticesCellIndex.CopyFrom(Load<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            verticesPos.CopyFrom(Load<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
+            verticesCellIndex.CopyFrom(Load<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
+            sw.Stop();
+            UnityEngine.Debug.Log($"Loading Process {sw.Elapsed}");
+            sw.Restart();
             //VerticesPosSliceJobProcess(gDependency);
             VerticesPosSliceJobProcess(gDependency);
-
+            sw.Stop();
+            UnityEngine.Debug.Log($"Job Process {sw.Elapsed}");
+            sw.Restart();
             for (int i = 0; i < chunks.Length; i++)
             {
                 ChunksData chunkData = chunks[i].GetComponent<ChunksData>();
@@ -52,7 +58,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesPos.Dispose();
             sortedVerticesPos.Dispose();
             sw.Stop();
-            UnityEngine.Debug.Log($"VerticesSliceProcess {sw.Elapsed}");
+            UnityEngine.Debug.Log($"Slicing process {sw.Elapsed}");
             verticesCellIndex.Dispose();
             sortedVerticesCellIndex.Dispose();
         }

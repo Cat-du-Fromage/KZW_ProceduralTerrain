@@ -57,5 +57,10 @@ namespace KaizerWaldCode.KWSerialization
             stream.Close();
             stream.Dispose();
         }
+
+        public static void LoadBuffered()
+        {
+
+        }
     }
 }

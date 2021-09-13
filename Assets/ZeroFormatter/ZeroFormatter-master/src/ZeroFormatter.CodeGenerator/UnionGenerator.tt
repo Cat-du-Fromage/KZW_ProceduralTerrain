@@ -1,0 +1,112 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+#pragma warning disable 618
+#pragma warning disable 612
+#pragma warning disable 414
+#pragma warning disable 168
+namespace <#= Namespace #>
+{
+    using global::System;
+    using global::ZeroFormatter.Formatters;
+    using global::ZeroFormatter.Internal;
+    using global::ZeroFormatter.Segments;
+
+<#
+   var resolverName = (ForceDefaultResolver) ? "ZeroFormatter.Formatters.DefaultResolver" : "TTypeResolver";
+   var resolverNameGenericArg = (ForceDefaultResolver) ? "" : "<TTypeResolver>";
+#>
+<# foreach(var t in Types) {  #>
+    public class <#= t.Name #>Formatter<#= resolverNameGenericArg #> : Formatter<<#= resolverName #>, <#= t.FullName #>>
+<# if(!ForceDefaultResolver) { #>
+        where <#= resolverName #> : ITypeResolver, new()
+<# } #>
+    {
+        readonly global::System.Collections.Generic.IEqualityComparer<<#= t.UnionKeyTypeName #>> comparer;
+        readonly <#= t.UnionKeyTypeName #>[] unionKeys;
+        
+        public <#= t.Name #>Formatter()
+        {
+            comparer = global::ZeroFormatter.Comparers.ZeroFormatterEqualityComparer<<#= t.UnionKeyTypeName #>>.Default;
+            unionKeys = new <#= t.UnionKeyTypeName #>[<#= t.SubTypeNames.Length #>];
+<# for(var i = 0; i < t.SubTypeNames.Length; i++) { var subType = t.SubTypeNames[i]; #>
+            unionKeys[<#= i #>] = new <#= subType #>().<#= t.UnionKeyPropertyName #>;
+<# } #>            
+        }
+
+        public override int? GetLength()
+        {
+            return null;
+        }
+
+        public override int Serialize(ref byte[] bytes, int offset, <#= t.FullName #> value)
+        {
+            if (value == null)
+            {
+                return BinaryUtil.WriteInt32(ref bytes, offset, -1);
+            }
+
+            var startOffset = offset;
+
+            offset += 4;
+            offset += Formatter<<#= resolverName #>, <#= t.UnionKeyTypeName #>>.Default.Serialize(ref bytes, offset, value.<#= t.UnionKeyPropertyName #>);
+
+<# for(var i = 0; i < t.SubTypeNames.Length; i++) { var subType = t.SubTypeNames[i]; #>
+            <#= i != 0 ? "else if" : "if" #> (value is <#= subType  #>)
+            {
+                offset += Formatter<<#= resolverName #>, <#= subType  #>>.Default.Serialize(ref bytes, offset, (<#= subType #>)value);
+            }
+<# } #>            
+            else
+            {
+                throw new Exception("Unknown subtype of Union:" + value.GetType().FullName);
+            }
+        
+            var writeSize = offset - startOffset;
+            BinaryUtil.WriteInt32(ref bytes, startOffset, writeSize);
+            return writeSize;
+        }
+
+        public override <#= t.FullName #> Deserialize(ref byte[] bytes, int offset, global::ZeroFormatter.DirtyTracker tracker, out int byteSize)
+        {
+            if ((byteSize = BinaryUtil.ReadInt32(ref bytes, offset)) == -1)
+            {
+                byteSize = 4;
+                return null;
+            }
+        
+            offset += 4;
+            int size;
+            var unionKey = Formatter<<#= resolverName #>, <#= t.UnionKeyTypeName #>>.Default.Deserialize(ref bytes, offset, tracker, out size);
+            offset += size;
+
+            <#= t.FullName #> result;
+<# for(var i = 0; i < t.SubTypeNames.Length; i++) { var subType = t.SubTypeNames[i]; #>
+            <#= i != 0 ? "else if" : "if" #> (comparer.Equals(unionKey, unionKeys[<#= i #>]))
+            {
+                result = Formatter<<#= resolverName #>, <#= subType  #>>.Default.Deserialize(ref bytes, offset, tracker, out size);
+            }
+<# } #>
+            else
+            {
+<# if ( t.FallbackTypeName == null) { #>
+                throw new Exception("Unknown unionKey type of Union: " + unionKey.ToString());
+<# } else { #>
+                result = new <#= t.FallbackTypeName #>();
+<# } #>
+            }
+
+            return result;
+        }
+    }
+
+<# } #>
+
+}
+
+#pragma warning restore 168
+#pragma warning restore 414
+#pragma warning restore 618
+#pragma warning restore 612
