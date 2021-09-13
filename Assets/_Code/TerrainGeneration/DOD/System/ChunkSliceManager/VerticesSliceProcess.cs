@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
 using Unity.Burst;
 using Unity.Collections;
@@ -33,8 +35,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            verticesPos.CopyFrom(ZFLoad<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
-            verticesCellIndex.CopyFrom(ZFLoad<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
+            verticesPos.CopyFrom(Load2<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos), sq(mapSettings.MapPointPerAxis)));
+            verticesCellIndex.CopyFrom(Load2<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex), sq(mapSettings.MapPointPerAxis)));
+
+            //verticesPos.CopyFrom(JsonSerialization.LoadArray<float3>($"{dir.MapDatasPath}/vertPoJson"));
+            //verticesCellIndex.CopyFrom(JsonSerialization.LoadArray<int>($"{dir.MapDatasPath}/vertIDJson"));
+            
             sw.Stop();
             UnityEngine.Debug.Log($"Loading Process {sw.Elapsed}");
             sw.Restart();
@@ -48,11 +54,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 ChunksData chunkData = chunks[i].GetComponent<ChunksData>();
                 //Use chunk Id since we can't be certain of the order of chunks (oop..)
                 int start = chunkData.Id * sq(mapSettings.ChunkPointPerAxis);
-
+                /*
                 Save<float3>(dir.GetChunkFileAt(chunkData.Position, (int)ChunkFiles.VerticesPos),
                                sortedVerticesPos.GetSubArray(start, sq(mapSettings.ChunkPointPerAxis)).ToArray());
                 Save<int>(dir.GetChunkFileAt(chunkData.Position, (int)ChunkFiles.VerticesCellIndex),
                             sortedVerticesCellIndex.GetSubArray(start, sq(mapSettings.ChunkPointPerAxis)).ToArray());
+                */
             }
 
             verticesPos.Dispose();
@@ -99,7 +106,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             JobHandle verticesSliceJobHandle = verticesSliceJob.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesSliceJobHandle.Complete();
         }
-
+        /*
         private void VerticesIdSliceJobProcess(in JobHandle dependencySystem)
         {
             VerticesIndexSliceJob verticesIndexSliceJob = new VerticesIndexSliceJob
@@ -113,6 +120,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             JobHandle verticesIndexSliceJobHandle = verticesIndexSliceJob.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesIndexSliceJobHandle.Complete();
         }
+        */
     }
 
     [BurstCompile(CompileSynchronously = true)]
@@ -150,7 +158,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
     }
-
+    /*
     [BurstCompile(CompileSynchronously = true)]
     public struct VerticesIndexSliceJob : IJobFor
     {
@@ -182,4 +190,5 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
     }
+    */
 }

@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Mathematics;
 using UnityEngine;
+
+using static Unity.Mathematics.math;
 
 namespace KaizerWaldCode
 {
@@ -23,7 +26,7 @@ namespace KaizerWaldCode
 			bufferOffset = bufferSize;
 		}
 
-		public int NumBytesAvailable { get { return Math.Max(0, numBufferedBytes - bufferOffset); } }
+		public int NumBytesAvailable { get { return max(0, numBufferedBytes - bufferOffset); } }
 
 		public bool FillBuffer()
 		{
@@ -49,9 +52,9 @@ namespace KaizerWaldCode
 			return true;
 		}
 
-		public ushort ReadUInt16()
+		public float3 ReadUInt16()
 		{
-			var val = (ushort)((int)buffer[bufferOffset] | (int)buffer[bufferOffset + 1] << 8);
+			var val = (float3)((int)buffer[bufferOffset] | (int)buffer[bufferOffset + 1] << 8);
 			bufferOffset += 2;
 			return val;
 		}

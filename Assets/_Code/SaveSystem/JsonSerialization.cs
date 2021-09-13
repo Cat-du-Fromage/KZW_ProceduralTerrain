@@ -19,7 +19,24 @@ namespace KaizerWaldCode.KWSerialization
             string json = JsonUtility.ToJson(data);
             File.WriteAllText($"{fullPath}.json", json);
         }
-        
+
+        public static void SaveArray<T>(in string fullPath, in string fileName , T[] data) where T : struct
+        {
+            if (!Directory.Exists(fullPath))
+                Directory.CreateDirectory(fullPath);
+            File.Create($"{fullPath}/{fileName}.json");
+
+            string json = JsonUtility.ToJson(data);
+            File.WriteAllText($"{fullPath}/{fileName}.json", json);
+            /*
+            using (StreamWriter sw = new StreamWriter(Path.Combine(fullPath, $"{fileName}.json")))
+            {
+                sw.Write(json);
+            }
+            */
+            //File.WriteAllText($"{fullPath}.json", json);
+        }
+
         public static T Load<T>(in string fullPath) where T : struct
         {
             T saveObject = new T();
@@ -27,7 +44,15 @@ namespace KaizerWaldCode.KWSerialization
             saveObject = JsonUtility.FromJson<T>(jsonFile);
             return saveObject;
         }
-        
+
+        public static T[] LoadArray<T>(in string fullPath) where T : struct
+        {
+            T[] saveObject = new T[]{};
+            string jsonFile = File.ReadAllText($"{fullPath}.json");
+            saveObject = JsonUtility.FromJson<T[]>(jsonFile);
+            return saveObject;
+        }
+
         public static bool SaveExist(in string fullPath)
         {
             return File.Exists($"{fullPath}.json");
