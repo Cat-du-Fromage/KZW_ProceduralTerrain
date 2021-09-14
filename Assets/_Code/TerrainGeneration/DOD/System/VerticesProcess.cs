@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using KaizerWaldCode.KWSerialization;
 using KaizerWaldCode.TerrainGeneration.Data;
+using KaizerWaldCode.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -49,8 +50,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesPosProcessJobHandle.Complete();
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            Save(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos), verticesPos.ToArray());
-            //JsonSerialization.SaveArray<float3>($"{dir.MapDatasPath}", "/vertPoJson",verticesPos.ToArray());
+            JsonHelper.ToJson<float3>(verticesPos.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
             sw.Stop();
             UnityEngine.Debug.Log($"Save {sw.Elapsed}");
             verticesPos.Dispose();
@@ -60,8 +60,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         {
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
-            verticesPos.CopyFrom(Load<float3>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos)));
-            //verticesPos.CopyFrom(JsonSerialization.LoadArray<float3>($"{dir.MapDatasPath}/vertPoJson"));
+            JsonHelper.FromJson(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos), ref verticesPos);
             VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.MapPointPerAxis,
@@ -71,8 +70,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesCellIndexProcessJobHandle = verticesCellIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesCellIndexProcessJobHandle.Complete();
-            Save(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex), verticesCellIndex.ToArray());
-            //JsonSerialization.SaveArray<int>($"{dir.MapDatasPath}", "/vertIDJson",verticesCellIndex.ToArray());
+            JsonHelper.ToJson<int>(verticesCellIndex.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex));
             verticesPos.Dispose();
             verticesCellIndex.Dispose();
         }

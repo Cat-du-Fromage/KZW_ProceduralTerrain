@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Unity.Mathematics;
 using UnityEngine;
 using static KaizerWaldCode.Utils.KWmath;
@@ -65,7 +66,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     struct MapDirectories
     {
         public string SelectedSave;
-
         const string SaveFiles = "SaveFiles";
         const string MapDatas = "MapDatas";
         const string FullMapDatas = "FullMapDatas";
@@ -126,20 +126,20 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 return new string[]
                 {
-                    @"\VerticesPosition.txt",
-                    @"\VerticesCellIndex.txt",
-                    @"\PoissonDiscPosition.txt",
-                    @"\PoissonDiscCellIndex.txt",
-                    @"\Voronoi.txt",
-                    @"\IslandShape.txt",
-                    @"\Noise.txt",
-                    @"\FallOff.txt",
+                    @"\VerticesPosition.json",
+                    @"\VerticesCellIndex.json",
+                    @"\PoissonDiscPosition.json",
+                    @"\PoissonDiscCellIndex.json",
+                    @"\Voronoi.json",
+                    @"\IslandShape.json",
+                    @"\Noise.json",
+                    @"\FallOff.json",
                 };
             }
         }
 
         //triangles are the same for each chunk (since it only define the draw order of the mesh)
-        private const string ChunksTrianglesFile = @"\Triangles.txt";
+        private const string ChunksTrianglesFile = @"\Triangles.json";
 
         /// <summary>
         /// Array containing all files path for each chunk
@@ -150,11 +150,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 return new string[]
                 {
-                    @"\VerticesPosition.txt",
-                    @"\VerticesCellIndex.txt",
-                    @"\Uvs.txt",
-                    @"\PoissonDiscPosition.txt",
-                    @"\PoissonDiscCellIndex.txt",
+                    @"\VerticesPosition.json",
+                    @"\VerticesCellIndex.json",
+                    @"\Uvs.json",
+                    @"\PoissonDiscPosition.json",
+                    @"\PoissonDiscCellIndex.json",
                 };
             }
         }

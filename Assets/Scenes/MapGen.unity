@@ -261,15 +261,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NewGame: 1
   MapSettings:
-    ChunkSize: 5
-    NumChunk: 2
+    ChunkSize: 100
+    NumChunk: 10
     PointPerMeter: 2
     Radius: 2
     Seed: 23
-    MapSize: 10
-    ChunkPointPerAxis: 6
-    MapPointPerAxis: 11
-    NumCellMap: 5
+    MapSize: 1000
+    ChunkPointPerAxis: 101
+    MapPointPerAxis: 1001
+    NumCellMap: 500
     PointSpacing: 1
     CellSize: 1.4142135
   FolderName: SaveTest
