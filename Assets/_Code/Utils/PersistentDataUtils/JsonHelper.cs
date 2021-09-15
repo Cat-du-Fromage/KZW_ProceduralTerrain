@@ -32,16 +32,16 @@ namespace KaizerWaldCode.Utils
                 return wrapper.Items;
             } ;
         }
-        
-        public static void FromJson<T>(in string path, ref NativeArray<T> data) where T : struct
+        /*
+        public static T[] FromJson<T>(in string path) where T : struct
         {
             using (StreamReader stream = new StreamReader(path))
             {
                 string json = stream.ReadToEnd();
-                JsonUtility.FromJsonOverwrite(json, data);
+                return JsonUtility.FromJson<T[]>(json);
             } ;
         }
-
+*/
         public static void ToJson<T>(T[] array, in string path, bool prettyPrint = false) where T : struct
         {
             using (StreamWriter stream = new StreamWriter(path))

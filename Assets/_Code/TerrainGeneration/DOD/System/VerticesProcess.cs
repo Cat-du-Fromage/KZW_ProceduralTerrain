@@ -60,7 +60,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         {
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
-            JsonHelper.FromJson(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos), ref verticesPos);
+            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
             VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.MapPointPerAxis,

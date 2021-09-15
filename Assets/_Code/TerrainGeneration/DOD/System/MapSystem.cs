@@ -33,6 +33,26 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private JobHandle gDependency; // needed for jobs system
 
+        void test()
+        {
+            SaveGame sv = new SaveGame
+            {
+                Name = "test",
+                HighScore = 10,
+            };
+            Byte[] testBytes = BytesSerialization.BytesSerialize(ref sv);
+            Debug.Log($"Bytes {testBytes.ToString()}");
+            char[] tc = Encoding.UTF8.GetChars(testBytes);
+            string s = Encoding.UTF8.GetString(testBytes);
+            Encoding.UTF8.GetString(testBytes);
+            Debug.Log($"Bytes string {s.Length}");
+            
+            for (int i = 0; i < tc.Length; i++)
+            {
+                Debug.Log($"Bytes at {i} = {tc[i]}");
+            }
+        }
+        
         public void LoadMap(in SettingsData mapSet, in bool newGame, in string folderName = "default")
         {
             bitfield = new BitField32(uint.MaxValue);

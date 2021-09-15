@@ -35,8 +35,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            JsonHelper.FromJson(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos), ref verticesPos);
-            JsonHelper.FromJson(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex), ref verticesCellIndex);
+            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
+            verticesCellIndex.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
             sw.Stop();
             UnityEngine.Debug.Log($"Loading Process {sw.Elapsed}");
             sw.Restart();
