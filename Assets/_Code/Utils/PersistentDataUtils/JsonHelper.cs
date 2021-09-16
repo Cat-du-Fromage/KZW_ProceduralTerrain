@@ -11,21 +11,16 @@ namespace KaizerWaldCode.Utils
     // See : https://stackoverflow.com/questions/36239705/serialize-and-deserialize-json-and-json-array-in-unity
     public static class JsonHelper
     {
-        [Serializable]
-        private class Wrapper<T> where T : struct
-        {
-            public T[] A;
-        }
+
 
         public static T[] FromJson<T>(in string path) where T : struct
         {
             using (StreamReader stream = new StreamReader(path))
             {
                 string json = stream.ReadToEnd();
-                //Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-                Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-                return wrapper.A;
-            } ;
+                Wrapper<T> w = JsonUtility.FromJson<Wrapper<T>>(json);
+                return w.A;
+            }
         }
 
         public static void ToJson<T>(T[] array, in string path, bool prettyPrint = false) where T : struct
@@ -57,6 +52,12 @@ namespace KaizerWaldCode.Utils
                 Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
                 return wrapper.A;
             } ;
+        }
+        
+        [Serializable]
+        private class Wrapper<T> where T : struct
+        {
+            public T[] A;
         }
     }
 }

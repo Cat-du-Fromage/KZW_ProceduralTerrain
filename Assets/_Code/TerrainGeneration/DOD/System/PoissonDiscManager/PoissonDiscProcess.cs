@@ -137,9 +137,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public void Execute(int index)
         {
-            Random Prng = new Random();
-            uint realSeed = max(1, WangHash(Seed));
-            Prng.InitState(realSeed);
+            Random Prng = Random.CreateFromIndex(Seed + (uint)index);
 
             int cellPosY = (int)floor(index / (float)Row);
             int cellPosX = index - (cellPosY * IndexInRow);

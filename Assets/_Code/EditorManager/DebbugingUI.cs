@@ -14,41 +14,51 @@ namespace KaizerWaldCode
 {
     public class DebbugingUI : MonoBehaviour
     {
-        private bool MapInit;
+        
         public bool PoissonDiscDebug;
+        private bool debugEnable;
+        private bool arrayInit;
         private MapSettingsData mapSettings;
         private MapDirectories dir;
         private float3[] pdcs;
-
-        public void DebuggingOK(SettingsData mapset, in string selectedSave)
-        {
-            mapSettings = mapset;
-            MapInit = true;
-            dir.SelectedSave = selectedSave;
-            Debug.Log(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos));
-            pdcs = new float3[sq(mapSettings.NumCellMap)];
-            pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos));
-        }
-
+        
         private void Awake()
         {
-            MapInit = false;
+            debugEnable = false;
+            arrayInit = false;
         }
 
-        private void OnValidate()
+        public void DebuggingEnable(SettingsData mapset, in string selectedSave)
         {
-            if (!MapInit) return;
+            mapSettings = mapset;
+            debugEnable = true;
+            dir.SelectedSave = selectedSave;
+            pdcs = new float3[sq(mapSettings.NumCellMap)];
+            InitPoissonArray();
+        }
+
+        void InitPoissonArray()
+        {
             if (PoissonDiscDebug)
             {
-                pdcs = new float3[sq(mapSettings.NumCellMap)];
-                pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos));
+                if (JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
+                {
+                    pdcs = new float3[sq(mapSettings.NumCellMap)];
+                    pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos));
+                }
             }
+        }
+        
+        private void OnValidate()
+        {
+            if (!debugEnable) return;
+            InitPoissonArray();
         }
         
         
         void OnDrawGizmos()
         {
-            if (!MapInit) return;
+            if (!debugEnable || !PoissonDiscDebug) return;
             if (pdcs.Length != 0)
             {
                 for (int i = 0; i < pdcs.Length; i++)
