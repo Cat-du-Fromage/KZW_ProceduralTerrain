@@ -18,6 +18,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     public partial class MapSystem : MonoBehaviour
     {
+
         private SettingsData mapSettings;
         private int mapPointSurface;
 
@@ -79,8 +80,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     break;
                 case 1:
                     VerticesCellIndexProcess(gDependency);
-                    //CreateChunkProcess();
-                    //VerticesSliceProcess();
+                    PoissonDiscProcess(gDependency);
+                    CreateChunkProcess();
+                    VerticesSliceProcess();
                     break;
                 case 2:
                     break;
@@ -99,12 +101,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     //VerticesSliceProcess();
             }
         }
-
-        void ChunkSliceStateMachine(in int state)
-        {
-
-        }
-
         void OnDestroy()
         {
             if (verticesPos.IsCreated) verticesPos.Dispose();
@@ -112,14 +108,18 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             if (sortedVerticesPos.IsCreated) sortedVerticesPos.Dispose();
             if (sortedVerticesCellIndex.IsCreated) sortedVerticesCellIndex.Dispose();
         }
-
-        /*
-        // Update is called once per frame
-        void Update()
+        
+        void OnDrawGizmos()
         {
-            if (bitfield.TestAll(0, 16) || paths.Length < 1) return;
-            FillGap();
+            if (pdcs.Length != 0)
+            {
+                Debug.Log("ok i suppose?");
+                for (int i = 0; i < pdcs.Length; i++)
+                {
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawSphere(pdcs[i], 0.1f);
+                }
+            }
         }
-        */
     }
 }

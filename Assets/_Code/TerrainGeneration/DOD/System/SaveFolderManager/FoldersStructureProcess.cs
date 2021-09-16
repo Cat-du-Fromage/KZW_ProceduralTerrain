@@ -72,7 +72,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         const string Chunks = "Chunks";
         const string Chunk = "Chunk";
 
-        public readonly string GetChunk(int x, int y)
+        public readonly string GetChunk(in int x, in int y)
         {
             return Path.Combine(ChunksPath, $"{Chunk}X{x}Y{y}");
         }
@@ -174,5 +174,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
         VerticesPos = 0,
         VerticesCellIndex = 1,
+        PoissonDiscPos = 2,
+        
     }
 }

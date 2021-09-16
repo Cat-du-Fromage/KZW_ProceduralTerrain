@@ -22,6 +22,7 @@ namespace KaizerWaldCode.Utils
             using (StreamReader stream = new StreamReader(path))
             {
                 string json = stream.ReadToEnd();
+                //Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
                 Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
                 return wrapper.A;
             } ;

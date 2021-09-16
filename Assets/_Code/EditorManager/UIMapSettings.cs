@@ -15,5 +15,7 @@ namespace KaizerWaldCode
         [HideInInspector]
         public string FolderName;
         public AssetReference MapSystemPrefab;
+        
+        public DebbugingUI ui;
     }
 }

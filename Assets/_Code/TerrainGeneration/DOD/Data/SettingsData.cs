@@ -8,6 +8,7 @@ namespace KaizerWaldCode.TerrainGeneration.Data
     [Serializable]
     public struct SettingsData
     {
+        //WRONG REPLACE RADIUS BY CELLSIZE AND VICE VERSA
         public int ChunkSize;
         public int NumChunk;
         public int PointPerMeter;

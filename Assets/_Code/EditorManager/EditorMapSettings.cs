@@ -110,6 +110,7 @@ namespace KaizerWaldCode.KwEditor
                     mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
                     AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
                     csHandle.Result.GetComponent<MapSystem>().LoadMap(uiSettings.MapSettings, newGame.boolValue, uiSettings.FolderName);
+                    uiSettings.ui.DebuggingOK(uiSettings.MapSettings, uiSettings.FolderName);
                     Addressables.Release(csHandle);
                 }
                 else

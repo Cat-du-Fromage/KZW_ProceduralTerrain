@@ -64,7 +64,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
             VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
             {
-                JNumCellMap = mapSettings.MapPointPerAxis,
+                JNumCellMap = mapSettings.NumCellMap,
                 JRadius = mapSettings.Radius,
                 JVertices = verticesPos,
                 JVerticesCellGrid = verticesCellIndex,
