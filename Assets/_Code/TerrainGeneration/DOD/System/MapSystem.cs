@@ -33,26 +33,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private JobHandle gDependency; // needed for jobs system
 
-        void test()
-        {
-            SaveGame sv = new SaveGame
-            {
-                Name = "test",
-                HighScore = 10,
-            };
-            Byte[] testBytes = BytesSerialization.BytesSerialize(ref sv);
-            Debug.Log($"Bytes {testBytes.ToString()}");
-            char[] tc = Encoding.UTF8.GetChars(testBytes);
-            string s = Encoding.UTF8.GetString(testBytes);
-            Encoding.UTF8.GetString(testBytes);
-            Debug.Log($"Bytes string {s.Length}");
-            
-            for (int i = 0; i < tc.Length; i++)
-            {
-                Debug.Log($"Bytes at {i} = {tc[i]}");
-            }
-        }
-        
         public void LoadMap(in SettingsData mapSet, in bool newGame, in string folderName = "default")
         {
             bitfield = new BitField32(uint.MaxValue);
@@ -60,24 +40,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
             GetOrCreateDirectories(folderName);
-            /*
-            saveFolder = Path.Combine(Application.persistentDataPath, "SaveFiles", folderName);
-            paths = new string[]
-            {
-                //Path.Combine(saveFolder, "VerticesPosition.txt"),
-                $"{dir.FullMapDatasPath}/VerticesPosition.txt",
-                //Path.Combine(saveFolder, "VerticesCellIndex.txt"),
-                $"{dir.FullMapDatasPath}/VerticesCellIndex.txt",
-                
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscPosition.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/PoissonDiscCellIndex.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/Voronoi.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/IslandShape.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/Noise.txt",
-                $"{Application.persistentDataPath}/Save Files/{folderPath}/FallOff.txt",
-                
-            };
-            */
             if (newGame)
             {
                 LoadNewMap();
@@ -117,8 +79,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     break;
                 case 1:
                     VerticesCellIndexProcess(gDependency);
-                    CreateChunkProcess();
-                    VerticesSliceProcess();
+                    //CreateChunkProcess();
+                    //VerticesSliceProcess();
                     break;
                 case 2:
                     break;

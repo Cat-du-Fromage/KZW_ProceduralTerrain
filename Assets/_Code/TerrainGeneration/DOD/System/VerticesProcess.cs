@@ -17,6 +17,7 @@ using static Unity.Mathematics.float3;
 using static KaizerWaldCode.Utils.KWmath;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.KWSerialization.BinarySerialization;
+using Debug = UnityEngine.Debug;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
@@ -50,7 +51,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesPosProcessJobHandle.Complete();
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            JsonHelper.ToJson<float3>(verticesPos.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
+            JsonHelper.ToJson<float3>(verticesPos, dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
             sw.Stop();
             UnityEngine.Debug.Log($"Save {sw.Elapsed}");
             verticesPos.Dispose();
@@ -70,7 +71,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle verticesCellIndexProcessJobHandle = verticesCellIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesCellIndexProcessJobHandle.Complete();
-            JsonHelper.ToJson<int>(verticesCellIndex.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex));
+            JsonHelper.ToJson<int>(verticesCellIndex, dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex));
             verticesPos.Dispose();
             verticesCellIndex.Dispose();
         }

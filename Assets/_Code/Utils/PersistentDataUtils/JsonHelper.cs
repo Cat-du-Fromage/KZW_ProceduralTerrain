@@ -14,40 +14,25 @@ namespace KaizerWaldCode.Utils
         [Serializable]
         private class Wrapper<T> where T : struct
         {
-            public T[] Items;
+            public T[] A;
         }
-        
-        [Serializable]
-        private class NativeWrapper<T> where T : struct
-        {
-            public NativeArray<T> Items;
-        }
-        
+
         public static T[] FromJson<T>(in string path) where T : struct
         {
             using (StreamReader stream = new StreamReader(path))
             {
                 string json = stream.ReadToEnd();
                 Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-                return wrapper.Items;
+                return wrapper.A;
             } ;
         }
-        /*
-        public static T[] FromJson<T>(in string path) where T : struct
-        {
-            using (StreamReader stream = new StreamReader(path))
-            {
-                string json = stream.ReadToEnd();
-                return JsonUtility.FromJson<T[]>(json);
-            } ;
-        }
-*/
+
         public static void ToJson<T>(T[] array, in string path, bool prettyPrint = false) where T : struct
         {
             using (StreamWriter stream = new StreamWriter(path))
             {
                 Wrapper<T> wrapper = new Wrapper<T>();
-                wrapper.Items = array;
+                wrapper.A = array;
                 stream.Write(JsonUtility.ToJson(wrapper, prettyPrint));
             }
         }
@@ -56,8 +41,8 @@ namespace KaizerWaldCode.Utils
         {
             using (StreamWriter stream = new StreamWriter(path))
             {
-                NativeWrapper<T> wrapper = new NativeWrapper<T>();
-                wrapper.Items = array;
+                Wrapper<T> wrapper = new Wrapper<T>();
+                wrapper.A = array.ToArray();
                 stream.Write(JsonUtility.ToJson(wrapper, prettyPrint));
             }
         }
@@ -69,7 +54,7 @@ namespace KaizerWaldCode.Utils
             {
                 string json = await stream.ReadToEndAsync(); 
                 Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-                return wrapper.Items;
+                return wrapper.A;
             } ;
         }
     }

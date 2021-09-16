@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028328, g: 0.22571322, b: 0.30692163, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -261,15 +261,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NewGame: 1
   MapSettings:
-    ChunkSize: 100
+    ChunkSize: 10
     NumChunk: 10
     PointPerMeter: 2
     Radius: 2
     Seed: 23
-    MapSize: 1000
-    ChunkPointPerAxis: 101
-    MapPointPerAxis: 1001
-    NumCellMap: 500
+    MapSize: 100
+    ChunkPointPerAxis: 11
+    MapPointPerAxis: 101
+    NumCellMap: 50
     PointSpacing: 1
     CellSize: 1.4142135
   FolderName: SaveTest
