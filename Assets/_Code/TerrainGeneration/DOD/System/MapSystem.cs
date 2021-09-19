@@ -46,9 +46,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             mapSettings = mapSet;
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
-            GetOrCreateDirectories(folderName);
+            
             if (newGame)
             {
+                //Destroy any existing save with the same name
+                if (Directory.Exists(dir.SelectSavePath))
+                {
+                    Directory.Delete(dir.SelectSavePath, true);
+                }
+                GetOrCreateDirectories(folderName);
                 LoadNewMap();
             }
             else
@@ -64,6 +70,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public void LoadNewMap()
         {
+            VerticesPositionProcess();
+            SharedVerticesPositionProcess();
+            VerticesCellIndexProcess();
+            PoissonDiscProcess();
+            CreateChunkProcess();
+            VerticesSliceProcess();
+            MeshDatasProcess();
+            BuildMeshesProcess();
+            /*
             bitfield.SetBits(0,false, dir.FullMapFilesPath.Length); //Full Map
             //bitfield.SetBits(16, false, 2); //Chunk Slice
 
@@ -74,7 +89,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 StateMachineMap(i);
                 bitfield.SetBits(i, true);
             }
-            
+            */
         }
 
         void StateMachineMap(in int state)
@@ -82,12 +97,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             switch (state)
             {
                 case 0: 
-                    VerticesPositionProcess(gDependency);
-                    SharedVerticesPositionProcess(gDependency);
+                    VerticesPositionProcess();
+                    SharedVerticesPositionProcess();
                     break;
                 case 1:
-                    VerticesCellIndexProcess(gDependency);
-                    PoissonDiscProcess(gDependency);
+                    VerticesCellIndexProcess();
+                    PoissonDiscProcess();
                     CreateChunkProcess();
                     VerticesSliceProcess();
                     MeshDatasProcess();

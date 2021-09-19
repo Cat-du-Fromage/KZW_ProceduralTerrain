@@ -23,22 +23,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     public partial class MapSystem : MonoBehaviour
     {
-        private JobHandle VerticesDoubleProcess(in JobHandle dependencySystem)
-        {
-            VerticesPosAndIndexProcessJob verticesPosAndIndexProcessJob = new VerticesPosAndIndexProcessJob
-            {
-                JMapPointPerAxis = mapSettings.MapPointPerAxis,
-                JSpacing = mapSettings.PointSpacing,
-                JNumCellMap = mapSettings.NumCellMap,
-                JRadius = mapSettings.Radius,
-                JVertices = verticesPos,
-                JVerticesCellGrid = verticesCellIndex
-            };
-            JobHandle verticesPosAndIndexProcessJobHandle = verticesPosAndIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
-            return verticesPosAndIndexProcessJobHandle;
-        }
-        
-        private void SharedVerticesPositionProcess(in JobHandle dependency)
+        /// <summary>
+        /// Process Shared Vertices for Chunks
+        /// Size of the Array is : Chunk Size * Chunk Size
+        /// </summary>
+        /// <param name="dependency"></param>
+        private void SharedVerticesPositionProcess(in JobHandle dependency = new JobHandle())
         {
             using(verticesPos = AllocNtvAry<float3>(sq(mapSettings.ChunkPointPerAxis)))
             {
@@ -54,8 +44,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 JsonHelper.ToJson<float3>(verticesPos, dir.GetChunksSharedVertexFile());
             }
         }
-
-        private void VerticesPositionProcess(in JobHandle dependency)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dependency">dependency for the job(use an empty one if not needed)</param>
+        private void VerticesPositionProcess(in JobHandle dependency = new JobHandle())
         {
             using(verticesPos = AllocNtvAry<float3>(mapPointSurface))
             {
@@ -72,7 +65,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
 
-        private void VerticesCellIndexProcess(in JobHandle dependency)
+        private void VerticesCellIndexProcess(in JobHandle dependency = new JobHandle())
         {
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
@@ -95,50 +88,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     }
 
     #region JOBS
-
-    /// <summary>
-    /// Process Both Vertices Positions and Cell Index
-    /// </summary>
-    [BurstCompile(CompileSynchronously = true)]
-    public struct VerticesPosAndIndexProcessJob : IJobFor
-    {
-        //MapSettings
-        [ReadOnly] public int JMapPointPerAxis;
-        [ReadOnly] public float JSpacing;
-        //PoissonDisc
-        [ReadOnly] public int JNumCellMap;
-        [ReadOnly] public int JRadius;
-
-        [NativeDisableParallelForRestriction]
-        [WriteOnly] public NativeArray<float3> JVertices;
-
-        [NativeDisableParallelForRestriction]
-        [WriteOnly] public NativeArray<int> JVerticesCellGrid;
-        public void Execute(int index)
-        {
-            int z = (int)floor(index / (float)JMapPointPerAxis);
-            int x = index - (z * JMapPointPerAxis);
-
-            float3 pointPosition = float3(x, 0, z) * float3(JSpacing);
-            JVertices[index] = pointPosition;
-
-            float2 cellGrid = float2(JNumCellMap);
-            float2 currVertPos = pointPosition.xz;
-
-            FindCell(ref cellGrid, currVertPos);
-            JVerticesCellGrid[index] = (int)mad(cellGrid.y, JNumCellMap, cellGrid.x);
-        }
-
-        void FindCell(ref float2 cellGrid, float2 vertPos)
-        {
-            for (int i = 0; i < JNumCellMap; i++)
-            {
-                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = select(JNumCellMap, i, vertPos.y <= mad(i, JRadius, JRadius));
-                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = select(JNumCellMap, i, vertPos.x <= mad(i, JRadius, JRadius));
-                if ((int)cellGrid.x != JNumCellMap && (int)cellGrid.y != JNumCellMap) break;
-            }
-        }
-    }
 
     /// <summary>
     /// Process Vertices Positions

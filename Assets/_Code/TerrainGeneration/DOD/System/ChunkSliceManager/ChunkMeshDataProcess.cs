@@ -44,6 +44,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             JobHandle sortedUvsJobHandle = SortedUvsMeshProcess(uvsJobHandle, uvs, ref sortedUvs);
             sortedUvsJobHandle.Complete();
             
+            //Distribute Uvs to all chunks
             for (int i = 0; i < chunks.Length; i++)
             {
                 //Triangles DONT NEED ATTRIBUTION! (see : MeshCreationProcess.cs)

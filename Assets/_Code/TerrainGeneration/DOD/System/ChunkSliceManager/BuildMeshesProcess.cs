@@ -74,7 +74,10 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 
             verticesPos = new NativeArray<float3>(sq(mapSettings.ChunkPointPerAxis), Allocator.Temp);
             verticesPos.CopyFrom(FromJson<float3>(dir.GetChunkFileAt(chunks[index].Position, (int)ChunkFiles.VerticesPos)));
-
+            
+            uvs = new NativeArray<float2>(sq(mapSettings.ChunkPointPerAxis), Allocator.Temp);
+            uvs.CopyFrom(FromJson<float2>(dir.GetChunkFileAt(chunks[index].Position, (int)ChunkFiles.Uvs)));
+            
             VertexAttributeDescriptor[] layout = new[]
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
@@ -96,10 +99,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 vertexCount = verticesPos.Length
             });
             mesh.UploadMeshData(false);
-            
+            mesh.SetUVs(0, uvs);
+            mesh.RecalculateBounds();
             chunks[index].GetComponent<MeshFilter>().sharedMesh = mesh;
             chunks[index].GetComponent<MeshCollider>().sharedMesh = mesh;
-            
+
+            uvs.Dispose();
             verticesPos.Dispose();
         }
     }
