@@ -13,9 +13,9 @@ namespace KaizerWaldCode.Utils
             array = new NativeArray<float3>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         }
 
-        public static NativeArray<T> AllocNtvAry<T>(int size) where T : struct
+        public static NativeArray<T> AllocNtvAry<T>(int size, NativeArrayOptions nativeArrayOptions = NativeArrayOptions.UninitializedMemory) where T : struct
         {
-            return new NativeArray<T>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            return new NativeArray<T>(size, Allocator.TempJob, nativeArrayOptions);
         }
 
         public static NativeArray<T> AllocFillNtvAry<T>(int size, T val) where T : struct

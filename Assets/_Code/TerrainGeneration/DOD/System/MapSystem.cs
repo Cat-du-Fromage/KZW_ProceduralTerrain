@@ -24,13 +24,19 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private BitField32 bitfield;
 
-        private GameObject[] chunks;
+        //private GameObject[] chunks;
+        private ChunksData[] chunks;
 
         private NativeArray<float3> verticesPos; // raw position calcul
         private NativeArray<int> verticesCellIndex; // raw position calcul
 
         private NativeArray<float3> sortedVerticesPos; // use for chunkSlice
         private NativeArray<int> sortedVerticesCellIndex; // use for chunkSlice
+        
+        private NativeArray<int> triangles;
+        private NativeArray<int> chunkTriangles;
+        private NativeArray<float2> uvs;
+        private NativeArray<float2> sortedUvs;
 
         private JobHandle gDependency; // needed for jobs system
 
@@ -77,12 +83,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 case 0: 
                     VerticesPositionProcess(gDependency);
+                    SharedVerticesPositionProcess(gDependency);
                     break;
                 case 1:
                     VerticesCellIndexProcess(gDependency);
                     PoissonDiscProcess(gDependency);
                     CreateChunkProcess();
                     VerticesSliceProcess();
+                    MeshDatasProcess();
+                    BuildMeshesProcess();
                     break;
                 case 2:
                     break;
@@ -96,9 +105,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     break;
                 default:
                     break;
-
-                    //CreateChunkProcess();
-                    //VerticesSliceProcess();
             }
         }
         void OnDestroy()
@@ -107,6 +113,10 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             if (verticesCellIndex.IsCreated) verticesCellIndex.Dispose();
             if (sortedVerticesPos.IsCreated) sortedVerticesPos.Dispose();
             if (sortedVerticesCellIndex.IsCreated) sortedVerticesCellIndex.Dispose();
+            if (triangles.IsCreated) triangles.Dispose();
+            if (uvs.IsCreated) uvs.Dispose();
+            if (sortedUvs.IsCreated) sortedUvs.Dispose();
+            if (chunkTriangles.IsCreated) chunkTriangles.Dispose();
         }
         
         void OnDrawGizmos()

@@ -20,8 +20,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private void GetOrCreateDirectories(in string folderName)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             dir.SelectedSave = folderName;
 
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
@@ -36,10 +34,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             {
                 CreateFullMapFiles(true);
             }
-
-            if (!Directory.Exists(dir.ChunksPath)) { Directory.CreateDirectory(dir.ChunksPath); }
+            
+            //CHunks Shared Data Directory
+            if (!Directory.Exists(dir.ChunksSharedDataPath)) { Directory.CreateDirectory(dir.ChunksSharedDataPath); }
             CreateTrianglesFile();
-
+            CreateVertexFile();
+            
             //individual Chunks Folder
             //string chunkPath;
             for (int i = 0; i < sq(mapSettings.NumChunk); i++)
@@ -57,8 +57,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     CreateChunksFiles(ChunkPosX, ChunkPosY, true);
                 }
             }
-            sw.Stop();
-            UnityEngine.Debug.Log($"GetOrCreateDirectories = {sw.Elapsed}");
         }
     }
 
@@ -70,6 +68,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         const string MapDatas = "MapDatas";
         const string FullMapDatas = "FullMapDatas";
         const string Chunks = "Chunks";
+        const string ChunksSharedData = "ChunksSharedData";
         const string Chunk = "Chunk";
 
         public readonly string GetChunk(in int x, in int y)
@@ -81,6 +80,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         public readonly string MapDatasPath { get { return Path.Combine(SelectSavePath, MapDatas); } }
         public readonly string FullMapDatasPath { get { return Path.Combine(MapDatasPath, FullMapDatas); } }
         public readonly string ChunksPath { get { return Path.Combine(MapDatasPath, Chunks); } }
+        public readonly string ChunksSharedDataPath { get { return Path.Combine(MapDatasPath, Chunks, ChunksSharedData); } }
 
         #region FILES
 
@@ -91,7 +91,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public readonly string GetChunksTriangleFile()
         {
-            return $"{ChunksPath}{ChunksTrianglesFile}";
+            return $"{ChunksSharedDataPath}{ChunksTrianglesFile}";
+        }
+        
+        public readonly string GetChunksSharedVertexFile()
+        {
+            return $"{ChunksSharedDataPath}{ChunksSharedVertexFile}";
         }
         /// <summary>
         /// Return the path to a given chunk (depending on x,y value entered)
@@ -129,7 +134,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     @"\VerticesPosition.json",
                     @"\VerticesCellIndex.json",
                     @"\PoissonDiscPosition.json",
-                    @"\PoissonDiscCellIndex.json",
+                    //@"\PoissonDiscCellIndex.json",
+                    @"\Uvs.json",
                     @"\Voronoi.json",
                     @"\IslandShape.json",
                     @"\Noise.json",
@@ -140,7 +146,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         //triangles are the same for each chunk (since it only define the draw order of the mesh)
         private const string ChunksTrianglesFile = @"\Triangles.json";
-
+        private const string ChunksSharedVertexFile = @"\SharedVertices.json";
         /// <summary>
         /// Array containing all files path for each chunk
         /// </summary>
@@ -175,6 +181,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         VerticesPos = 0,
         VerticesCellIndex = 1,
         PoissonDiscPos = 2,
-        
+        Uvs = 3,
     }
 }

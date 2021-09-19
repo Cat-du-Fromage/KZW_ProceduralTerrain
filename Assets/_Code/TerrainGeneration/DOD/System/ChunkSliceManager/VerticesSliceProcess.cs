@@ -14,7 +14,9 @@ using UnityEngine;
 
 using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.KWmath;
+using static KaizerWaldCode.Utils.JsonHelper;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
+using Debug = UnityEngine.Debug;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
@@ -25,65 +27,32 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
         private void VerticesSliceProcess()
         {
-            
+            int chunkPoints = mapSettings.ChunkPointPerAxis;
+            int mapPoints = mapSettings.MapPointPerAxis;
             //Vertices Position
-            verticesPos = AllocNtvAry<float3>(sq(mapSettings.MapPointPerAxis));
-            sortedVerticesPos = AllocNtvAry<float3>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
-
+            verticesPos = AllocNtvAry<float3>(sq(chunkPoints));
+            verticesPos.CopyFrom(FromJson<float3>(dir.GetChunksSharedVertexFile()));
+            
             //Vertices Cell Index
-            verticesCellIndex = AllocNtvAry<int>(sq(mapSettings.MapPointPerAxis));
-            sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
-            verticesCellIndex.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
-            sw.Stop();
-            UnityEngine.Debug.Log($"Loading Process {sw.Elapsed}");
-            sw.Restart();
+            verticesCellIndex = AllocNtvAry<int>(sq(mapPoints));
+            verticesCellIndex.CopyFrom(FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
+            sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(chunkPoints));
+            
             VerticesPosSliceJobProcess(gDependency);
-            sw.Stop();
-            UnityEngine.Debug.Log($"Job Process {sw.Elapsed}");
-            sw.Restart();
+
             for (int i = 0; i < chunks.Length; i++)
             {
-                ChunksData chunkData = chunks[i].GetComponent<ChunksData>();
                 //Use chunk Id since we can't be certain of the order of chunks (oop..)
-                int start = chunkData.Id * sq(mapSettings.ChunkPointPerAxis);
-                JsonHelper.ToJson<float3>(sortedVerticesPos.GetSubArray(start, sq(mapSettings.ChunkPointPerAxis)).ToArray(),
-                                            dir.GetChunkFileAt(chunkData.Position, (int)ChunkFiles.VerticesPos));
-                JsonHelper.ToJson<int>(sortedVerticesCellIndex.GetSubArray(start, sq(mapSettings.ChunkPointPerAxis)).ToArray(),
-                    dir.GetChunkFileAt(chunkData.Position, (int)ChunkFiles.VerticesCellIndex));
+                int start = chunks[i].Id * sq(mapSettings.ChunkPointPerAxis);
+                //ToJson(sortedVerticesPos.GetSubArray(start, sq(chunkPoints)),dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesPos));
+                ToJson(verticesPos,dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesPos));
+                ToJson(sortedVerticesCellIndex.GetSubArray(start, sq(chunkPoints)),dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesCellIndex));
             }
 
             verticesPos.Dispose();
-            sortedVerticesPos.Dispose();
-            sw.Stop();
-            UnityEngine.Debug.Log($"Slicing process {sw.Elapsed}");
             verticesCellIndex.Dispose();
             sortedVerticesCellIndex.Dispose();
         }
-/*
-        private void VerticesCellIndexSliceProcess()
-        {
-            verticesCellIndex = AllocNtvAry<int>(sq(mapSettings.MapPointPerAxis));
-            verticesCellIndex.CopyFrom(Load<int>(dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex)));
-
-            sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
-            VerticesPosSliceJobProcess(gDependency);
-            for (int i = 0; i < chunks.Length; i++)
-            {
-                ChunksData chunkData = chunks[i].GetComponent<ChunksData>();
-                //Use chunk Id since we can't be certain of the order of chunks (oop..)
-                int start = chunkData.Id * sq(mapSettings.ChunkPointPerAxis);
-                Save<int>(dir.GetChunkFileAt(chunkData.Position, (int)ChunkFiles.VerticesCellIndex),
-                            sortedVerticesCellIndex.GetSubArray(start, sq(mapSettings.ChunkPointPerAxis)).ToArray());
-            }
-
-            verticesCellIndex.Dispose();
-            sortedVerticesCellIndex.Dispose();
-        }
-*/
-
         private void VerticesPosSliceJobProcess(in JobHandle dependencySystem)
         {
             VerticesSliceJob verticesSliceJob = new VerticesSliceJob
@@ -91,29 +60,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 JMapPointPerAxis = mapSettings.MapPointPerAxis,
                 JChunkPointPerAxis = mapSettings.ChunkPointPerAxis,
                 JNumChunk = mapSettings.NumChunk,
-                JVerticesPos = verticesPos,
-                JSortedVerticesPos = sortedVerticesPos,
                 JVerticesId = verticesCellIndex,
                 JSortedVerticesId = sortedVerticesCellIndex,
             };
             JobHandle verticesSliceJobHandle = verticesSliceJob.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependencySystem);
             verticesSliceJobHandle.Complete();
         }
-        /*
-        private void VerticesIdSliceJobProcess(in JobHandle dependencySystem)
-        {
-            VerticesIndexSliceJob verticesIndexSliceJob = new VerticesIndexSliceJob
-            {
-                JMapPointPerAxis = mapSettings.MapPointPerAxis,
-                JChunkPointPerAxis = mapSettings.ChunkPointPerAxis,
-                JNumChunk = mapSettings.NumChunk,
-                JVerticesId = verticesCellIndex,
-                JSortedVerticesId = sortedVerticesCellIndex,
-            };
-            JobHandle verticesIndexSliceJobHandle = verticesIndexSliceJob.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependencySystem);
-            verticesIndexSliceJobHandle.Complete();
-        }
-        */
     }
 
     [BurstCompile(CompileSynchronously = true)]
@@ -122,45 +74,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         [ReadOnly] public int JMapPointPerAxis;
         [ReadOnly] public int JChunkPointPerAxis;
         [ReadOnly] public int JNumChunk;
-
-        [ReadOnly]public NativeArray<float3> JVerticesPos;
+        
         [ReadOnly] public NativeArray<int> JVerticesId;
-
-        [NativeDisableParallelForRestriction]
-        [WriteOnly] public NativeArray<float3> JSortedVerticesPos;
-        [NativeDisableParallelForRestriction]
-        [WriteOnly] public NativeArray<int> JSortedVerticesId;
-        public void Execute(int index)
-        {
-            int ChunkPosY = (int)floor(index / (float)JNumChunk);
-            int ChunkPosX = index - (ChunkPosY * JNumChunk);
-
-            for (int z = 0; z < JChunkPointPerAxis; z++) // z axis
-            {
-                int startY = (ChunkPosY * JMapPointPerAxis) * (JChunkPointPerAxis - 1); //*chunksPoint-1 because of the height of the chunk; -1 because we need the vertice before
-                int startX = ChunkPosX * (JChunkPointPerAxis - 1);
-                int startYChunk = z * JMapPointPerAxis; // y point relative to chunk (NOT CHUNK to MAP)
-                int start = startY + startX + startYChunk;
-
-                for (int x = 0; x < JChunkPointPerAxis; x++) // x axis
-                {
-                    int sliceIndex = mad(z, JChunkPointPerAxis, x) + (index * sq(JChunkPointPerAxis));
-                    JSortedVerticesPos[sliceIndex] = JVerticesPos[start + x];
-                    JSortedVerticesId[sliceIndex] = JVerticesId[start + x];
-                }
-            }
-        }
-    }
-    /*
-    [BurstCompile(CompileSynchronously = true)]
-    public struct VerticesIndexSliceJob : IJobFor
-    {
-        [ReadOnly] public int JMapPointPerAxis;
-        [ReadOnly] public int JChunkPointPerAxis;
-        [ReadOnly] public int JNumChunk;
-
-        [ReadOnly] public NativeArray<int> JVerticesId;
-
+        
         [NativeDisableParallelForRestriction]
         [WriteOnly] public NativeArray<int> JSortedVerticesId;
         public void Execute(int index)
@@ -183,5 +99,4 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
     }
-    */
 }

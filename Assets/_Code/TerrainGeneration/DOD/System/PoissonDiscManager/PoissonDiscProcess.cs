@@ -6,7 +6,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 using static Unity.Mathematics.math;
@@ -22,12 +21,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         private float3[] pdcs;
         private void PoissonDiscProcess(in JobHandle gDependency)
         {
-            int CellPerAxis = (int)math.floor(mapSettings.MapSize / mapSettings.Radius);
-
             using (NativeArray<float3> poissonDiscPos = AllocNtvAry<float3>(sq(mapSettings.NumCellMap)))
             {
                 PoissonDiscPerCellJob poissonDiscPerCellJob = new PoissonDiscPerCellJob
                 {
+                    JSize = mapSettings.MapSize,
                     RadiusJob = mapSettings.Radius,
                     IndexInRow = mapSettings.NumCellMap,
                     Row = mapSettings.NumCellMap,
@@ -127,6 +125,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     [BurstCompile(CompileSynchronously = true)]
     public struct PoissonDiscPerCellJob : IJobFor
     {
+        [ReadOnly] public float JSize;
         [ReadOnly] public float RadiusJob;
         //[ReadOnly] public float CellSize; //(w)radius/math.sqrt(2)
         [ReadOnly] public int IndexInRow; // X(cols) : math.floor(mapHeight/cellSize)
@@ -141,6 +140,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
             int cellPosY = (int)floor(index / (float)Row);
             int cellPosX = index - (cellPosY * IndexInRow);
+            float midSize = JSize / 2f;
             
             // Get the current Position of the center of the cell
             float midCellSize = RadiusJob / 2f;
@@ -152,23 +152,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             float2 randDirection = Prng.NextFloat2Direction();
             float2 sample = mad(randDirection, Prng.NextFloat(0 , midCellSize), midCellPos);
             
-            PoissonDiscPosition[index] = float3(sample.x, 0, sample.y);
-        }
-        
-        uint WangHash(uint n)
-        {
-            // https://gist.github.com/badboy/6267743#hash-function-construction-principles
-            // Wang hash: this has the property that none of the outputs will
-            // collide with each other, which is important for the purposes of
-            // seeding a random number generator.  This was verified empirically
-            // by checking all 2^32 uints.
-            n = (n ^ 61u) ^ (n >> 16);
-            n *= 9u;
-            n = n ^ (n >> 4);
-            n *= 0x27d4eb2du;
-            n = n ^ (n >> 15);
-
-            return n;
+            PoissonDiscPosition[index] = float3(sample.x, 0, sample.y) - float3(midSize,0,midSize);
         }
     }
 }

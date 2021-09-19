@@ -67,6 +67,19 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 CreateFile(dir.GetChunksTriangleFile());
             }
         }
+        
+        private void CreateVertexFile(bool checkExist = true)
+        {
+            if (checkExist)
+            {
+                if ( File.Exists(dir.GetChunksSharedVertexFile()) ) return;
+                CreateFile(dir.GetChunksSharedVertexFile());
+            }
+            else
+            {
+                CreateFile(dir.GetChunksSharedVertexFile());
+            }
+        }
     }
 
 

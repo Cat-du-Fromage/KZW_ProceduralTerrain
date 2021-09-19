@@ -30,7 +30,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 sw.Start();
                 int nbChunk = mapSettings.NumChunk;
                 int sizeChunk = mapSettings.ChunkSize;
-                chunks = new GameObject[sq(nbChunk)];
+                chunks = new ChunksData[sq(nbChunk)];
 
                 AsyncOperationHandle<GameObject> chunkAsset = LoadSingleAssetSync<GameObject>(chunk);
 
@@ -41,18 +41,20 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
                     GameObject chunkGameObj = Instantiate(chunkAsset.Result);
                     chunkGameObj.name = $"Chunk ({posX}; {posY})";
-                    chunkGameObj.transform.localPosition = new Vector3(posX * sizeChunk, 0, posY * sizeChunk);
+
+                    float mapCenterOffset = (mapSettings.ChunkSize/2f) * (mapSettings.NumChunk-1);
+                    chunkGameObj.transform.position = new Vector3(posX * sizeChunk, 0, posY * sizeChunk) - new Vector3(mapCenterOffset,0 ,mapCenterOffset);
 
                     ChunksData chunkObjData = chunkGameObj.GetComponent<ChunksData>();
                     chunkObjData.Id = i;
                     chunkObjData.Position = int2(posX, posY);
 
-                    chunks[i] = chunkGameObj;
+                    chunks[i] = chunkObjData;
                 }
 
                 Addressables.Release(chunkAsset);
                 sw.Stop();
-                UnityEngine.Debug.Log($"CreateChunkProcess = {sw.ElapsedMilliseconds}");
+                UnityEngine.Debug.Log($"CreateChunkProcess = {sw.Elapsed}");
             }
         }
 

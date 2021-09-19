@@ -37,41 +37,58 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             JobHandle verticesPosAndIndexProcessJobHandle = verticesPosAndIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
             return verticesPosAndIndexProcessJobHandle;
         }
-
-        private void VerticesPositionProcess(in JobHandle dependencySystem)
+        
+        private void SharedVerticesPositionProcess(in JobHandle dependency)
         {
-            verticesPos = AllocNtvAry<float3>(mapPointSurface);
-            VerticesPosProcessJob verticesPosProcessJob = new VerticesPosProcessJob
+            using(verticesPos = AllocNtvAry<float3>(sq(mapSettings.ChunkPointPerAxis)))
             {
-                JMapPointPerAxis = mapSettings.MapPointPerAxis,
-                JSpacing = mapSettings.PointSpacing,
-                JVertices = verticesPos,
-            };
-            JobHandle verticesPosProcessJobHandle = verticesPosProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
-            verticesPosProcessJobHandle.Complete();
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            JsonHelper.ToJson<float3>(verticesPos, dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
-            sw.Stop();
-            UnityEngine.Debug.Log($"Save {sw.Elapsed}");
-            verticesPos.Dispose();
+                VerticesPosProcessJob vertPosJob = new VerticesPosProcessJob
+                {
+                    JSize = mapSettings.ChunkSize,
+                    JPointPerAxis = mapSettings.ChunkPointPerAxis,
+                    JSpacing = mapSettings.PointSpacing,
+                    JVertices = verticesPos,
+                };
+                JobHandle vertPosJobHandle = vertPosJob.ScheduleParallel(sq(mapSettings.ChunkPointPerAxis), JobsUtility.JobWorkerCount - 1, dependency);
+                vertPosJobHandle.Complete();
+                JsonHelper.ToJson<float3>(verticesPos, dir.GetChunksSharedVertexFile());
+            }
         }
 
-        private void VerticesCellIndexProcess(in JobHandle dependencySystem)
+        private void VerticesPositionProcess(in JobHandle dependency)
+        {
+            using(verticesPos = AllocNtvAry<float3>(mapPointSurface))
+            {
+                VerticesPosProcessJob vertPosJob = new VerticesPosProcessJob
+                {
+                    JSize = mapSettings.MapSize,
+                    JPointPerAxis = mapSettings.MapPointPerAxis,
+                    JSpacing = mapSettings.PointSpacing,
+                    JVertices = verticesPos,
+                };
+                JobHandle vertPosJobHandle = vertPosJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependency);
+                vertPosJobHandle.Complete();
+                JsonHelper.ToJson<float3>(verticesPos, dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
+            }
+        }
+
+        private void VerticesCellIndexProcess(in JobHandle dependency)
         {
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
+
             verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
-            VerticesCellIndexProcessJob verticesCellIndexProcessJob = new VerticesCellIndexProcessJob
+            VerticesCellIndexProcessJob vertCellIdJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.NumCellMap,
                 JRadius = mapSettings.Radius,
                 JVertices = verticesPos,
                 JVerticesCellGrid = verticesCellIndex,
             };
-            JobHandle verticesCellIndexProcessJobHandle = verticesCellIndexProcessJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependencySystem);
-            verticesCellIndexProcessJobHandle.Complete();
+            JobHandle vertCellIdJobHandle = vertCellIdJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependency);
+            vertCellIdJobHandle.Complete();
             JsonHelper.ToJson<int>(verticesCellIndex, dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex));
+
             verticesPos.Dispose();
             verticesCellIndex.Dispose();
         }
@@ -130,18 +147,19 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     public struct VerticesPosProcessJob : IJobFor
     {
         //MapSettings
-        [ReadOnly] public int JMapPointPerAxis;
+        [ReadOnly] public int JSize;
+        [ReadOnly] public int JPointPerAxis;
         [ReadOnly] public float JSpacing;
 
         [NativeDisableParallelForRestriction]
         [WriteOnly] public NativeArray<float3> JVertices;
         public void Execute(int index)
         {
-            int z = (int)floor(index / (float)JMapPointPerAxis);
-            int x = index - (z * JMapPointPerAxis);
+            int z = (int)floor(index / (float)JPointPerAxis);
+            int x = index - (z * JPointPerAxis);
+            float midSize = JSize / 2f;
 
-
-            float3 pointPosition = float3(x, 0, z) * float3(JSpacing);
+            float3 pointPosition = mad(float3(x, 0, z), float3(JSpacing), float3(-midSize,0,-midSize));
             JVertices[index] = pointPosition;
         }
     }
