@@ -92,14 +92,14 @@ namespace KaizerWaldCode.TerrainGeneration.KwEntity
                     NumChunk = max(1, numChunk),
                     PointPerMeter = MinMax(2, 10),
                     Seed = max(1u, seed),
-                    Radius = max(1, radius),
+                    CellSize = max(1, radius),
 
                     MapSize = chunkSize * numChunk,
                     PointSpacing = 1f / (pointPerMeter - 1f),
                     ChunkPointPerAxis = (chunkSize * pointPerMeter) - (chunkSize - 1),
                     MapPointPerAxis = (numChunk * chunkSize) * pointPerMeter - (numChunk * chunkSize - 1),
                     NumCellMap = (int)ceil(chunkSize / (float)max(1, radius) * numChunk),
-                    CellSize = max(1f, radius) / SQRT2,
+                    Radius = max(1f, radius) / SQRT2,
                 };
             }
         }

@@ -90,6 +90,7 @@ namespace KaizerWaldCode.Utils
             float y = (dx * cl - ex * bl) * d;
             return x * x + y * y;
         }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float2 GetCircumcenter(in float2 a, in float2 b, in float2 c)
         {

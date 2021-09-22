@@ -5,17 +5,22 @@ using KaizerWaldCode.TerrainGeneration;
 using KaizerWaldCode.TerrainGeneration.Data;
 using KaizerWaldCode.TerrainGeneration.KwEntity;
 using KaizerWaldCode.TerrainGeneration.KwSystem;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using static KaizerWaldCode.Utils.AddressablesUtils;
 using static Unity.Mathematics.math;
 
-#if UNITY_EDITOR
+
 namespace KaizerWaldCode.KwEditor
 {
+    /*
+#if UNITY_EDITOR
     [CustomEditor(typeof(UIMapSettings))]
     [CanEditMultipleObjects]
     public class EditorMapSettings : Editor
@@ -29,7 +34,7 @@ namespace KaizerWaldCode.KwEditor
         //Save Files
         public string[] files;
         bool[] pos = new bool[3] { false, false, false };
-        
+
         //Internal Private fields
         private string savesFolder;
         private DirectoryInfo directory;
@@ -59,6 +64,50 @@ namespace KaizerWaldCode.KwEditor
             GetFilesName(savesFolder, ref files, numSaves, directory);
         }
 
+        void MapSettingGUI(UIMapSettings uiSettings)
+        {
+            EditorGUILayout.PropertyField(folderName, new GUIContent("Save Name"));
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(mapSettings, new GUIContent("Map Settings"));
+            GUI.enabled = true;
+            EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("ChunkSize"),
+                new GUIContent("Chunk Size"));
+            EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("NumChunk"),
+                new GUIContent("Num Chunk"));
+            EditorGUILayout.IntSlider(mapSettings.FindPropertyRelative("PointPerMeter"), 2, 10);
+
+            GUI.enabled = false;
+            int chunkSz = mapSettings.FindPropertyRelative("ChunkSize").intValue;
+            int nbChunk = mapSettings.FindPropertyRelative("NumChunk").intValue;
+            int nbPoint = mapSettings.FindPropertyRelative("PointPerMeter").intValue;
+
+            EditorGUILayout.IntField("Map Size", uiSettings.MapSettings.MapSize = chunkSz * nbChunk);
+            EditorGUILayout.FloatField("Point Spacing", uiSettings.MapSettings.PointSpacing = 1f / (nbPoint - 1f));
+            EditorGUILayout.IntField("ChunkPointPerAxis",
+                uiSettings.MapSettings.ChunkPointPerAxis = (chunkSz * nbPoint) - (chunkSz - 1));
+            EditorGUILayout.IntField("MapPointPerAxis",
+                uiSettings.MapSettings.MapPointPerAxis = (nbChunk * chunkSz) * nbPoint - (nbChunk * chunkSz - 1));
+            GUI.enabled = true;
+        }
+
+        void PoissonDiscGUI(UIMapSettings uiSettings)
+        {
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(mapSettings, new GUIContent("Poisson Disc Settings"));
+            GUI.enabled = true;
+            EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("Seed"), new GUIContent("Seed"));
+            EditorGUILayout.PropertyField(mapSettings.FindPropertyRelative("Radius"), new GUIContent("Radius"));
+            GUI.enabled = false;
+            int radius = mapSettings.FindPropertyRelative("Radius").intValue;
+            int chunkSz = mapSettings.FindPropertyRelative("ChunkSize").intValue;
+            int nbChunk = mapSettings.FindPropertyRelative("NumChunk").intValue;
+
+            EditorGUILayout.IntField("NumCellMap",
+                uiSettings.MapSettings.NumCellMap = (int)ceil(chunkSz / (float)max(1, radius) * nbChunk));
+            EditorGUILayout.FloatField("CellSize", uiSettings.MapSettings.CellSize = max(1f, radius) / SQRT2);
+            GUI.enabled = true;
+        }
+
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
@@ -68,6 +117,10 @@ namespace KaizerWaldCode.KwEditor
             newGame.boolValue = EditorGUILayout.Toggle("New Game", newGame.boolValue);
             if (newGame.boolValue)
             {
+                MapSettingGUI(uiSettings);
+                PoissonDiscGUI(uiSettings);
+                */
+                /*
                 //EditorGUILayout.TextField("Save Name", uiSettings.FolderName);
                 EditorGUILayout.PropertyField(folderName, new GUIContent("Save Name"));
                 GUI.enabled = false;
@@ -92,6 +145,8 @@ namespace KaizerWaldCode.KwEditor
                 EditorGUILayout.IntField("NumCellMap", uiSettings.MapSettings.NumCellMap = (int)ceil(chunkSz / (float)max(1, radius) * nbChunk));
                 EditorGUILayout.FloatField("CellSize", uiSettings.MapSettings.CellSize = max(1f, radius) / SQRT2);
                 GUI.enabled = true;
+                */
+                /*
             }
             else
             {
@@ -108,8 +163,10 @@ namespace KaizerWaldCode.KwEditor
                 if (uiSettings.FolderName != string.Empty)
                 {
                     mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
-                    AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
-                    csHandle.Result.GetComponent<MapSystem>().LoadMap(uiSettings.MapSettings, newGame.boolValue, uiSettings.FolderName);
+                    AsyncOperationHandle<GameObject> csHandle =
+                        LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
+                    csHandle.Result.GetComponent<MapSystem>().LoadMap(uiSettings.MapSettings, newGame.boolValue,
+                        uiSettings.FolderName);
                     uiSettings.ui.DebuggingEnable(uiSettings.MapSettings, uiSettings.FolderName);
                     Addressables.Release(csHandle);
                 }
@@ -145,5 +202,6 @@ namespace KaizerWaldCode.KwEditor
             folderName = serializedObject.FindProperty("FolderName");
         }
     }
-}
 #endif
+*/
+}

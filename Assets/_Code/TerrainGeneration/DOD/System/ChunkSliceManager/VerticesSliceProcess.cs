@@ -38,13 +38,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesCellIndex.CopyFrom(FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(chunkPoints));
             
-            VerticesPosSliceJobProcess(gDependency);
+            //Noise Map
+            //sortedPerlinNoiseMap = AllocNtvAry<float>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));
+            
+            DataSliceJobProcess();
 
             for (int i = 0; i < chunks.Length; i++)
             {
                 //Use chunk Id since we can't be certain of the order of chunks (oop..)
                 int start = chunks[i].Id * sq(mapSettings.ChunkPointPerAxis);
-                //ToJson(sortedVerticesPos.GetSubArray(start, sq(chunkPoints)),dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesPos));
                 ToJson(verticesPos,dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesPos));
                 ToJson(sortedVerticesCellIndex.GetSubArray(start, sq(chunkPoints)),dir.GetChunkFileAt(chunks[i].Position, (int)ChunkFiles.VerticesCellIndex));
             }
@@ -52,10 +54,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesPos.Dispose();
             verticesCellIndex.Dispose();
             sortedVerticesCellIndex.Dispose();
+            //sortedPerlinNoiseMap.Dispose();
         }
-        private void VerticesPosSliceJobProcess(in JobHandle dependencySystem)
+        private void DataSliceJobProcess(in JobHandle dependency = new JobHandle())
         {
-            VerticesSliceJob verticesSliceJob = new VerticesSliceJob
+            DataSliceJob dataSliceJ = new DataSliceJob
             {
                 JMapPointPerAxis = mapSettings.MapPointPerAxis,
                 JChunkPointPerAxis = mapSettings.ChunkPointPerAxis,
@@ -63,13 +66,13 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 JVerticesId = verticesCellIndex,
                 JSortedVerticesId = sortedVerticesCellIndex,
             };
-            JobHandle verticesSliceJobHandle = verticesSliceJob.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependencySystem);
-            verticesSliceJobHandle.Complete();
+            JobHandle dataSliceJH = dataSliceJ.ScheduleParallel(sq(mapSettings.NumChunk), JobsUtility.JobWorkerCount - 1, dependency);
+            dataSliceJH.Complete();
         }
     }
 
     [BurstCompile(CompileSynchronously = true)]
-    public struct VerticesSliceJob : IJobFor
+    public struct DataSliceJob : IJobFor
     {
         [ReadOnly] public int JMapPointPerAxis;
         [ReadOnly] public int JChunkPointPerAxis;

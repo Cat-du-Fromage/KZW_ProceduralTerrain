@@ -20,6 +20,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
 
         private SettingsData mapSettings;
+        private PerlinNoiseData noiseSettings;
+        
         private int mapPointSurface;
 
         private BitField32 bitfield;
@@ -37,15 +39,22 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         private NativeArray<int> chunkTriangles;
         private NativeArray<float2> uvs;
         private NativeArray<float2> sortedUvs;
+        
+        //NOISE
+        private NativeArray<float2> noiseOffsetsMap;
+        private NativeArray<float> perlinNoiseMap;
+        private NativeArray<float> sortedPerlinNoiseMap;
 
         private JobHandle gDependency; // needed for jobs system
 
-        public void LoadMap(in SettingsData mapSet, in bool newGame, in string folderName = "default")
+        public void LoadMap(in SettingsData mapSet, in PerlinNoiseData noiseSet , in bool newGame, in string folderName = "default")
         {
             bitfield = new BitField32(uint.MaxValue);
             mapSettings = mapSet;
+            noiseSettings = noiseSet;
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
+            dir.SelectedSave = folderName;
             
             if (newGame)
             {
@@ -74,54 +83,18 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             SharedVerticesPositionProcess();
             VerticesCellIndexProcess();
             PoissonDiscProcess();
+            IslandCoastProcess();
+            //VoronoiIsland();
+
             CreateChunkProcess();
+            
+            PerlinNoiseProcess(); // TO DO : Seperate slicing process
+            
             VerticesSliceProcess();
             MeshDatasProcess();
             BuildMeshesProcess();
-            /*
-            bitfield.SetBits(0,false, dir.FullMapFilesPath.Length); //Full Map
-            //bitfield.SetBits(16, false, 2); //Chunk Slice
-
-            for (int i = 0; i < dir.FullMapFilesPath.Length; i++)
-            {
-                if (bitfield.IsSet(i)) {continue;}
-                if ( !SaveExist(dir.GetFullMapFileAt(i)) ) { CreateFile(dir.GetFullMapFileAt(i)); }
-                StateMachineMap(i);
-                bitfield.SetBits(i, true);
-            }
-            */
         }
-
-        void StateMachineMap(in int state)
-        {
-            switch (state)
-            {
-                case 0: 
-                    VerticesPositionProcess();
-                    SharedVerticesPositionProcess();
-                    break;
-                case 1:
-                    VerticesCellIndexProcess();
-                    PoissonDiscProcess();
-                    CreateChunkProcess();
-                    VerticesSliceProcess();
-                    MeshDatasProcess();
-                    BuildMeshesProcess();
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                default:
-                    break;
-            }
-        }
+        
         void OnDestroy()
         {
             if (verticesPos.IsCreated) verticesPos.Dispose();
@@ -132,19 +105,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             if (uvs.IsCreated) uvs.Dispose();
             if (sortedUvs.IsCreated) sortedUvs.Dispose();
             if (chunkTriangles.IsCreated) chunkTriangles.Dispose();
-        }
-        
-        void OnDrawGizmos()
-        {
-            if (pdcs.Length != 0)
-            {
-                Debug.Log("ok i suppose?");
-                for (int i = 0; i < pdcs.Length; i++)
-                {
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawSphere(pdcs[i], 0.1f);
-                }
-            }
+            if (noiseOffsetsMap.IsCreated) noiseOffsetsMap.Dispose();
+            if (perlinNoiseMap.IsCreated) perlinNoiseMap.Dispose();
+            if (sortedPerlinNoiseMap.IsCreated) sortedPerlinNoiseMap.Dispose();
         }
     }
 }

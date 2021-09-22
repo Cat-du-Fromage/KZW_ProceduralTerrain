@@ -20,7 +20,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         private void GetOrCreateDirectories(in string folderName)
         {
-            dir.SelectedSave = folderName;
+            //dir.SelectedSave = folderName;
 
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
             if (!Directory.Exists(dir.MapDatasPath)) { Directory.CreateDirectory(dir.MapDatasPath); }
@@ -107,18 +107,12 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         /// <returns></returns>
         public readonly string GetChunkFileAt(in int x, in int y, in int file)
         {
-            if (file == 3)
-                return GetChunksTriangleFile();
-            else
-                return $"{GetChunk(x, y)}{ChunkFilesPath[file]}";
+            return $"{GetChunk(x, y)}{ChunkFilesPath[file]}";
         }
 
         public readonly string GetChunkFileAt(in int2 Pos, in int file)
         {
-            if (file == 3)
-                return GetChunksTriangleFile();
-            else
-                return $"{GetChunk(Pos.x, Pos.y)}{ChunkFilesPath[file]}";
+            return $"{GetChunk(Pos.x, Pos.y)}{ChunkFilesPath[file]}";
         }
 
 
@@ -134,7 +128,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     @"\VerticesPosition.json",
                     @"\VerticesCellIndex.json",
                     @"\PoissonDiscPosition.json",
-                    //@"\PoissonDiscCellIndex.json",
+                    @"\PoissonDiscCellIndex.json",
                     @"\Uvs.json",
                     @"\Voronoi.json",
                     @"\IslandShape.json",
@@ -159,6 +153,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     @"\VerticesPosition.json",
                     @"\VerticesCellIndex.json",
                     @"\Uvs.json",
+                    @"\Noise.json",
                     @"\PoissonDiscPosition.json",
                     @"\PoissonDiscCellIndex.json",
                 };
@@ -173,7 +168,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         VerticesPos = 0,
         VerticesCellIndex = 1,
         Uvs = 2,
-        Triangles = 3,
+        PerlinNoise = 3,
     }
     [Flags]
     public enum FullMapFiles : int
@@ -181,6 +176,11 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         VerticesPos = 0,
         VerticesCellIndex = 1,
         PoissonDiscPos = 2,
-        Uvs = 3,
+        PoissonDiscId = 3,
+        Uvs = 4,
+        Voronoi = 5,
+        Island = 6,
+        Noise = 7,
+        FallOff = 8,
     }
 }

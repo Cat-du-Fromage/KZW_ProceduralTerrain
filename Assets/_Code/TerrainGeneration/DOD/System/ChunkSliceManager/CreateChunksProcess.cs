@@ -29,6 +29,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             GameObject[] chunksInGame = GameObject.FindGameObjectsWithTag("Map Chunk");
             float meshBoundSize = 0;
             float mapCenterOffset = (mapSettings.ChunkSize/2f) * (mapSettings.NumChunk-1);
+            //Use to center the map on (0,0,0)
+            Vector3 offset = new Vector3(mapCenterOffset, 0, mapCenterOffset);
+            
             // Get Bound size of one chunk in game
             if (chunksInGame.Length != 0)
             {
@@ -60,7 +63,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
                     GameObject chunkGameObj = Instantiate(chunkAsset.Result);
                     chunkGameObj.name = $"Chunk ({posX}; {posY})";
-                    chunkGameObj.transform.position = new Vector3(posX * sizeChunk, 0, posY * sizeChunk) - new Vector3(mapCenterOffset,0 ,mapCenterOffset);
+                    chunkGameObj.transform.position = new Vector3(posX * sizeChunk, 0, posY * sizeChunk);
 
                     ChunksData chunkObjData = chunkGameObj.GetComponent<ChunksData>();
                     chunkObjData.Id = i;
@@ -73,13 +76,13 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 sw.Stop();
                 UnityEngine.Debug.Log($"CreateChunkProcess = {sw.Elapsed}");
             }
-            else if (meshBoundSize != mapSettings.ChunkSize && meshBoundSize != 0) //Replace chunks if only the size get changed(and not the number of chunks)
+            else if ((int)meshBoundSize != mapSettings.ChunkSize && meshBoundSize != 0) //Replace chunks if only the size get changed(and not the number of chunks)
             {
                 for (int i = 0; i < chunksInGame.Length; i++)
                 {
                     int posY = (int)floor((float)i / mapSettings.NumChunk);
                     int posX = i - posY * mapSettings.NumChunk;
-                    chunksInGame[i].transform.position = new Vector3(posX * mapSettings.ChunkSize, 0, posY * mapSettings.ChunkSize) - new Vector3(mapCenterOffset,0 ,mapCenterOffset);
+                    chunksInGame[i].transform.position = new Vector3(posX * mapSettings.ChunkSize, 0, posY * mapSettings.ChunkSize);
                 }
             }
             

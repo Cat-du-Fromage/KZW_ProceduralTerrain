@@ -21,6 +21,7 @@ namespace KaizerWaldCode
         private MapSettingsData mapSettings;
         private MapDirectories dir;
         private float3[] pdcs;
+        private int[] island;
         
         private void Awake()
         {
@@ -34,6 +35,7 @@ namespace KaizerWaldCode
             debugEnable = true;
             dir.SelectedSave = selectedSave;
             pdcs = new float3[sq(mapSettings.NumCellMap)];
+            island = new int[sq(mapSettings.NumCellMap)];
             InitPoissonArray();
         }
 
@@ -44,7 +46,9 @@ namespace KaizerWaldCode
                 if (JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
                 {
                     pdcs = new float3[sq(mapSettings.NumCellMap)];
+                    island = new int[sq(mapSettings.NumCellMap)];
                     pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos));
+                    island = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.Island));
                 }
             }
         }
@@ -64,6 +68,14 @@ namespace KaizerWaldCode
                 for (int i = 0; i < pdcs.Length; i++)
                 {
                     Gizmos.color = Color.blue;
+                    if (island[i] == 1)
+                    {
+                        Gizmos.color = Color.green;
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.red;
+                    }
                     Gizmos.DrawSphere(pdcs[i], 0.1f);
                 }
             }

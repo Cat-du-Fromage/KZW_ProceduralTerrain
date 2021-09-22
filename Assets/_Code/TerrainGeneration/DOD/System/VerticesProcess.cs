@@ -74,7 +74,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             VerticesCellIndexProcessJob vertCellIdJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.NumCellMap,
-                JRadius = mapSettings.Radius,
+                JCellSize = mapSettings.CellSize,
                 JVertices = verticesPos,
                 JVerticesCellGrid = verticesCellIndex,
             };
@@ -108,7 +108,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             int x = index - (z * JPointPerAxis);
             float midSize = JSize / 2f;
 
-            float3 pointPosition = mad(float3(x, 0, z), float3(JSpacing), float3(-midSize,0,-midSize));
+            //float3 pointPosition = mad(float3(x, 0, z), float3(JSpacing), float3(-midSize,0,-midSize));
+            float3 pointPosition = float3(x, 0, z) * float3(JSpacing);
             JVertices[index] = pointPosition;
         }
     }
@@ -120,7 +121,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     public struct VerticesCellIndexProcessJob : IJobFor
     {
         [ReadOnly] public int JNumCellMap;
-        [ReadOnly] public int JRadius;
+        [ReadOnly] public int JCellSize;
         [ReadOnly] public NativeArray<float3> JVertices;
 
         [NativeDisableParallelForRestriction]
@@ -138,8 +139,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         {
             for (int i = 0; i < JNumCellMap; i++)
             {
-                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = select(JNumCellMap, i, vertPos.y <= mad(i, JRadius, JRadius));
-                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = select(JNumCellMap, i, vertPos.x <= mad(i, JRadius, JRadius));
+                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = select(JNumCellMap, i, vertPos.y <= mad(i, JCellSize, JCellSize));
+                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = select(JNumCellMap, i, vertPos.x <= mad(i, JCellSize, JCellSize));
                 if ((int)cellGrid.x != JNumCellMap && (int)cellGrid.y != JNumCellMap) break;
             }
         }
