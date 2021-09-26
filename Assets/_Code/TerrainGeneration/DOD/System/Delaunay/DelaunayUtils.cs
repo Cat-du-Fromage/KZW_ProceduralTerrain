@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,17 +6,19 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
+using KaizerWaldCode.Utils;
 
 using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.Utils.KWmath;
+using static KaizerWaldCode.KwDelaunay.DelaunayI2Utils;
 
+using int2 = Unity.Mathematics.int2;
 using float2 = Unity.Mathematics.float2;
 using float3 = Unity.Mathematics.float3;
 
-namespace KaizerWaldCode.TerrainGeneration
+namespace KaizerWaldCode.KwDelaunay
 {
-    
     public partial class DelaunaySystem
     {
         /// <summary>
@@ -72,7 +75,7 @@ namespace KaizerWaldCode.TerrainGeneration
                 distances[i] = select(distancesq(i0Pos, samplesCellGrid[cellsIndex[i]]), float.MaxValue, samplesCellGrid[cellsIndex[i]].Equals(i0Pos));
             }
 
-            int minDstId = IndexMin(distances, cellsIndex);
+            int minDstId = KwGrid.IndexMin(distances, cellsIndex);
             i1 = minDstId;
             i1Pos = samplesCellGrid[minDstId];
             
@@ -80,67 +83,89 @@ namespace KaizerWaldCode.TerrainGeneration
             distances.Dispose();
             return (i1, i1Pos);
         }
-
-        private (int, float2) InitI2(int i0Id, float2 i0Pos, int i1Id, float2 i1Pos, NativeArray<float2> samplesCellGrid, int mapNumCell)
+        
+        /// <summary>
+        /// 1) Get cell to check circumradius Distance
+        /// 2) Calcul Each Circumradius
+        /// 3) sort and find the nearest point I2
+        /// </summary>
+        /// <param name="i0Id"></param>
+        /// <param name="i1Id"></param>
+        /// <param name="mapNumCell"></param>
+        /// <param name="sCG">sampleCellGrid</param>
+        private (int, float3) InitI2(in int i0Id, in int i1Id, in int mapNumCell, in NativeArray<float3> sCG)
         {
-            int i2 = 0;
-            float2 i2Pos = float2.zero;
-            int2 xRange;
-            int2 yRange;
-            int numCell;
+            int i2Id = 0;
 
-            CellGridRanges(mapNumCell, i0Id, out xRange, out yRange, out numCell);
+            //Get the I who has the lowest index
+            int iLow = (i0Id > i1Id) ? i0Id : i1Id;
+            //Assign iUp to the other
+            int iUp = (iLow == i0Id) ? i1Id : i0Id;
 
-            NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            NativeArray<float> distances = new NativeArray<float>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-
-            int cellCount = 0;
-            for (int y = yRange.x; y <= yRange.y; y++)
+            int2 iLowXY = KwGrid.GetXY2(iLow, mapNumCell);
+            int2 iUpXY = KwGrid.GetXY2(iUp, mapNumCell);
+            
+            // find the third point which forms the smallest circumcircle with the first two
+            using NativeList<int> cellToCheck = new NativeList<int>(4, Allocator.Temp);
+            using NativeArray<int> lowIds = GetLowGridIDS(mapNumCell, iLow, iLowXY);
+            using NativeArray<int> upIds = GetUpGridIDS(mapNumCell, iUp, iUpXY);
+            
+            //merge low and up cells (get also rid of duplicates)
+            cellToCheck.AddRange(lowIds);
+            for (int i = 0; i < upIds.Length; i++)
             {
-                for (int x = xRange.x; x <= xRange.y; x++)
-                {
-                    int indexCellOffset = i0Id + mad(y, mapNumCell, x);
-                    cellsIndex[cellCount] = indexCellOffset;
-                    cellCount++;
-                }
+                if (cellToCheck.Contains(upIds[i])) continue; //skip duplicate
+                cellToCheck.Add(upIds[i]);
             }
-
-            bool NotValid(int a) => samplesCellGrid[cellsIndex[a]].Equals(float2(-1)) || samplesCellGrid[cellsIndex[a]].Equals(i0Pos);
-            for (int i = 0; i < numCell; i++)
-            {
-                distances[i] = select(distancesq(i0Pos, samplesCellGrid[cellsIndex[i]]), float.MaxValue, NotValid(i));
-            }
-
-            int minDstId = IndexMin(distances, cellsIndex);
-            i2 = minDstId;
-            i2Pos = samplesCellGrid[minDstId];
-
-            cellsIndex.Dispose();
-            distances.Dispose();
-            return (i2, i2Pos);
+            i2Id = IndexMinCircumRad(iLow, iUp, mapNumCell, sCG, cellToCheck.AsArray());
+            return (i2Id, sCG[i2Id]); //i2Pos = sampleCellGrid[i2Id]
         }
+        /// <summary>
+        /// Sort all poissonDisc relative to their distances from the circumcenter of the triangle previously calculated
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="coords"></param>
+        /// <param name="unsortedDst"></param>
+        /// <returns></returns>
+        private JobHandle GetSortedDstCoords(in float2 center, in NativeArray<float3> coords, ref NativeArray<float> unsortedDst)
+        {
+            int sizeArray = coords.Length;
 
+            DstPointsToCircumCenterJob unsortedDstJ = new DstPointsToCircumCenterJob
+            {
+                JCircumcenterPos = center,
+                JPoissonPos = coords,
+                JDst = unsortedDst
+            };
+            JobHandle unsortedDstJH = unsortedDstJ.ScheduleParallel(sizeArray, JobsUtility.JobWorkerCount - 1, new JobHandle());
+            return unsortedDstJH;
+        }
 
         /// <summary>
-        /// Find the index of the cells a point belongs to
+        /// Get the index of the Min circumradius
         /// </summary>
-        /// <param name="pointPos">point from where we want to find the cell</param>
-        /// <param name="numCellMap">number of cells per axis (fullmap : mapSize * numChunk / radius)</param>
-        /// <param name="cellRadius">radius on map settings</param>
-        /// <returns>index of the cell</returns>
-        private int FindCell(float2 pointPos, int numCellMap, float cellRadius)
+        /// <param name="index"></param>
+        /// <param name="mapNumCell"></param>
+        /// <param name="checkRange"></param>
+        /// <param name="sCG"></param>
+        /// <returns></returns>
+        private int IndexMinCircumRad(in int i0ID, in int i1ID, in int mapNumCell, in NativeArray<float3> scg, in NativeArray<int> ctc)
         {
-            int2 cellGrid = int2(numCellMap);
-            for (int i = 0; i < numCellMap; i++)
+            int minCircumId = 0;
+            float minRadius = float.PositiveInfinity;
+            for (int i = 0; i < ctc.Length; i++)
             {
-                if (cellGrid.y == numCellMap) cellGrid.y = select(numCellMap, i, pointPos.y <= mad(i, cellRadius, cellRadius));
-                if (cellGrid.x == numCellMap) cellGrid.x = select(numCellMap, i, pointPos.x <= mad(i, cellRadius, cellRadius));
-                if (cellGrid.x != numCellMap && cellGrid.y != numCellMap) break;
+                int checkIndex = ctc[i];
+                float r = Circumradius(scg[i0ID].xz, scg[i1ID].xz, scg[checkIndex].xz);
+                if (r < minRadius)
+                {
+                    minCircumId = checkIndex;
+                    minRadius = r;
+                }
             }
-            return mad(cellGrid.y, numCellMap, cellGrid.x);
+            return minCircumId;
         }
-
-
+        
         /// <summary>
         /// Get both X/Y grid Range (neighbores around the cell)
         /// Get numCell to check (may be less if the cell checked is on a corner or on an edge of the grid)
@@ -149,14 +174,16 @@ namespace KaizerWaldCode.TerrainGeneration
         /// <param name="xRange"></param>
         /// <param name="yRange"></param>
         /// <param name="numCell"></param>
-        private void CellGridRanges(int mapNumCell, int cell, out int2 xRange, out int2 yRange, out int numCell)
+        private void CellGridRanges(in int mapNumCell, in int cell, out int2 xRange, out int2 yRange, out int numCell)
         {
-            int y = (int)floor(cell / (float)mapNumCell);
-            int x = cell - mul(y, mapNumCell);
+            int x, y;
+            (x, y) = KwGrid.GetXY(cell, mapNumCell);
+            //int y = (int)floor((float)cell / mapNumCell);
+            //int x = cell - (y * mapNumCell);
 
-            bool corner = (x == 0 && y == 0) || (x == 0 && y == mapNumCell - 1) || (x == mapNumCell - 1 && y == 0) || (x == mapNumCell - 1 && y == mapNumCell - 1);
-            bool yOnEdge = y == 0 || y == mapNumCell - 1;
-            bool xOnEdge = x == 0 || x == mapNumCell - 1;
+            bool corner = (x == 0 & y == 0) || (x == 0 & y == mapNumCell - 1) || (x == mapNumCell - 1 & y == 0) || (x == mapNumCell - 1 & y == mapNumCell - 1);
+            bool yOnEdge = y == 0 | y == mapNumCell - 1;
+            bool xOnEdge = x == 0 | x == mapNumCell - 1;
 
             //check if on edge 0 : int2(0, 1) ; if not NumCellJob - 1 : int2(-1, 0)
             int2 OnEdge(int e) => select(int2(-1, 0), int2(0, 1), e == 0);
@@ -165,91 +192,85 @@ namespace KaizerWaldCode.TerrainGeneration
             numCell = select(select(9, 6, yOnEdge || xOnEdge), 4, corner);
         }
 
-        /// <summary>
-        /// Find the index of the minimum value of the array
-        /// </summary>
-        /// <param name="dis">array containing float distance value from point to his neighbors</param>
-        /// <param name="cellIndex">array storing index of float2 position of poissonDiscSamples </param>
-        /// <returns>index of the closest point</returns>
-        private int IndexMin(in NativeArray<float> dis, in NativeArray<int> cellIndex)
+        private int HashKey(in float2 h)
         {
-            float val = float.MaxValue;
-            int index = 0;
+           return (int)floor(PseudoAngle(float2(h.x - center.x, h.y - center.y) * hashSize) % hashSize);
+        } 
+        private float PseudoAngle(in float2 d)
+        {
+            float p = d.x / (abs(d.x) + abs(d.y));
+            return (d.y > 0 ? 3 - p : 1 + p) / 4; // [0..1]
+        }
+        private int AddTriangle(in int i0, in int i1, in int i2, in int a, in int b, in int c)
+        {
+            int t = trianglesLen;
 
-            for (int i = 0; i < dis.Length; i++)
+            triangles[t] = i0;
+            triangles[t + 1] = i1;
+            triangles[t + 2] = i2;
+
+            Link(t, a);
+            Link(t + 1, b);
+            Link(t + 2, c);
+
+            trianglesLen += 3;
+            return t;
+        }
+        private void Link(in int a, in int b)
+        {
+            Halfedges[a] = b;
+            if (b != -1) Halfedges[b] = a;
+        }
+        private void Swap(ref NativeArray<int> ids, in int i, in int j)
+        {
+            (ids[i], ids[j]) = (ids[j], ids[i]); // new way of swap in C#
+        }
+        private void Quicksort(ref NativeArray<int> ids, in NativeArray<float> dists, int left, int right)
+        {
+            if (right - left <= 20)
             {
-                if (dis[i] < val)
+                for (var i = left + 1; i <= right; i++)
                 {
-                    index = cellIndex[i];
-                    val = dis[i];
+                    int temp = ids[i];
+                    float tempDist = dists[temp];
+                    int j = i - 1;
+                    while (j >= left && dists[ids[j]] > tempDist) ids[j + 1] = ids[j--];
+                    ids[j + 1] = temp;
                 }
             }
-            return index;
-        }
-        
-        /// <summary>
-        /// Find who from i0 and i1 is the left or right one
-        /// return also configuration
-        /// </summary>
-        /// <param name="lr">place i0 and i1 in an int2 : left/right</param>
-        /// <param name="config"></param>
-        /// <param name="i0Pos"></param>
-        /// <param name="i1Pos"></param>
-        /// <param name="i0"></param>
-        /// <param name="i1"></param>
-        private void FindLeftRight(out int2 lr, out int config, in float2 i0Pos, in float2 i1Pos, in int i0, in int i1)
-        {
-            float2 offset = i1Pos - i0Pos;
-            int2 i0I1 = int2(i0, i1);
-            int2 i1I0 = int2(i1, i0);
-
-            if (offset.x == 0)
-            {
-                config = 0; //CAREFUL WITH THIS ONE!
-                lr = select(i0I1, i1I0, offset.y > 0);
-            }
-            else if (offset.y == 0)
-            {
-                config = 1;
-                lr = select(i1I0, i0I1, offset.x > 0);
-            }
             else
             {
-                config = 2;
-                lr = select(i1I0, i0I1, offset.x > 0);
+                int median = (left + right) >> 1;
+                int i = left + 1;
+                int j = right;
+                Swap(ref ids, median, i);
+                if (dists[ids[left]] > dists[ids[right]]) Swap(ref ids, left, right);
+                if (dists[ids[i]] > dists[ids[right]]) Swap(ref ids, i, right);
+                if (dists[ids[left]] > dists[ids[i]]) Swap(ref ids, left, i);
+
+                int temp = ids[i];
+                float tempDist = dists[temp];
+                while (true)
+                {
+                    do i++; while (dists[ids[i]] < tempDist);
+                    do j--; while (dists[ids[j]] > tempDist);
+                    if (j < i) break;
+                    Swap(ref ids, i, j);
+                }
+                ids[left + 1] = ids[j];
+                ids[j] = temp;
+
+                if (right - i + 1 >= j - left)
+                {
+                    Quicksort(ref ids, dists, i, right);
+                    Quicksort(ref ids, dists, left, j - 1);
+                }
+                else
+                {
+                    Quicksort(ref ids, dists, left, j - 1);
+                    Quicksort(ref ids, dists, i, right);
+                }
             }
-        }
-
-        private void FindDoubleCellGridRange(out int2 yRange, out int2 xRange, int config, int i0, int i1, int mapNumCell)
-        {
-            int2 lr = int2(i0, i1);
-
-            //Left Part
-            int ly = (int)floor(lr.x / (float)mapNumCell);
-            int lx = lr.x - mul(ly, mapNumCell);
-
-            if(config != 0)
-            {
-                int2 YZeroOne() => select(int2(-1, 2), int2(0, 2), ly == 0);
-                yRange = select(int2(-2, 2), YZeroOne(), ly == 0 || ly == 1);
-
-                int2 XZeroOne() => select(int2(-1, 0), int2(0, 0), lx == 0);
-                xRange = select(int2(-2, 0), XZeroOne(), lx == 0 || lx == 1);
-            }
-            else
-            {
-                int2 YZeroOne() => select(int2(-1, 0), int2(0, 0), ly == 0);
-                yRange = select(int2(-2, 0), YZeroOne(), ly == 0 || ly == 1);
-
-                int2 XZeroOne() => select(int2(-1, 2), int2(0, 2), lx == 0);
-                xRange = select(int2(-2, 2), XZeroOne(), lx == 0 || lx == 1);
-            }
-
-            /*
-            if (ly == 0) yRange = int2(0, 2);
-            else if(ly == 1) yRange = int2(-1, 2);
-            else yRange = int2(-2, 2);
-            */
         }
     }
 }

@@ -77,7 +77,6 @@ namespace KaizerWaldCode.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Circumradius(in float2 a, in float2 b, in float2 c)
         {
-            //CIRCUMCENTER!!
             float dx = b.x - a.x;
             float dy = b.y - a.y;
             float ex = c.x - a.x;
@@ -85,7 +84,6 @@ namespace KaizerWaldCode.Utils
             float bl = dx * dx + dy * dy;
             float cl = ex * ex + ey * ey;
             float d = 0.5f / (dx*ey - dy*ex);
-            //change from here
             float x = (ey * bl - dy * cl) * d;
             float y = (dx * cl - ex * bl) * d;
             return x * x + y * y;
@@ -205,6 +203,25 @@ namespace KaizerWaldCode.Utils
         public static bool IsRight(in float2 a, in float2 b, in float2 c)
         {
             return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) < 0;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool InCircle(in float2 a, in float2 b, in float2 c, in float2 p)
+        {
+            float dx = a.x - p.x;
+            float dy = a.y - p.y;
+            float ex = b.x - p.x;
+            float ey = b.y - p.y;
+            float fx = c.x - p.x;
+            float fy = c.y - p.y;
+
+            float ap = (dx * dx) + (dy * dy);
+            float bp = (ex * ex) + (ey * ey);
+            float cp = (fx * fx) + (fy * fy);
+
+            return dx * (ey * cp - bp * fy) -
+                   dy * (ex * cp - bp * fx) +
+                   ap * (ex * fy - ey * fx) < 0;
         }
     }
 }

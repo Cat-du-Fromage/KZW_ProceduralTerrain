@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using KaizerWaldCode.TerrainGeneration.Data;
+using KaizerWaldCode.KwDelaunay;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -54,7 +55,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             noiseSettings = noiseSet;
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
-            dir.SelectedSave = folderName;
+            dir = new MapDirectories(folderName);
+            //dir.SelectedSave = folderName;
             
             if (newGame)
             {
@@ -93,6 +95,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             VerticesSliceProcess();
             MeshDatasProcess();
             BuildMeshesProcess();
+            DelaunaySystem tstDel = new DelaunaySystem(dir.SelectedSave, mapSettings);
         }
         
         void OnDestroy()

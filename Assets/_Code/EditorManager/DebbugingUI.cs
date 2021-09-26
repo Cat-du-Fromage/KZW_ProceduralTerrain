@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using KaizerWaldCode.KwDelaunay;
 using KaizerWaldCode.TerrainGeneration;
 using KaizerWaldCode.TerrainGeneration.Data;
 using KaizerWaldCode.TerrainGeneration.KwSystem;
@@ -22,7 +23,10 @@ namespace KaizerWaldCode
         private MapDirectories dir;
         private float3[] pdcs;
         private int[] island;
+        private DelaunayMethods delaunayMethods;
         
+        [SerializeField] bool drawTriangle = false;
+        [SerializeField] bool drawVoronoi = false;
         private void Awake()
         {
             debugEnable = false;
@@ -37,6 +41,40 @@ namespace KaizerWaldCode
             pdcs = new float3[sq(mapSettings.NumCellMap)];
             island = new int[sq(mapSettings.NumCellMap)];
             InitPoissonArray();
+            delaunayMethods = new DelaunayMethods(dir.SelectedSave);
+
+/*
+            foreach (var voronoiCell in delaunayMethods.GetVoronoiCells())
+            {
+                for (int i = 0; i < voronoiCell.Points.Length; i++)
+                {
+                    Debug.Log($"voronoiCell{i} = {voronoiCell.Points[i]}");
+                }
+                
+            }
+            
+            
+            List<int> t = new List<int>();
+            t.AddRange(delaunayMethods.EdgesAroundPoint(3));
+            for (int i = 0; i < t.Count; i++)
+            {
+                Debug.Log($"edges around? = {t[i]}");
+            }
+            
+            foreach (IEdge edge in delaunayMethods.GetEdges())
+            {
+                for (int i = 0; i < t.Count; i++)
+                {
+                    if (edge.Index == t[i] || edge.Index == 3 || edge.Index == 30 || edge.Index == 25)
+                    {
+                        Debug.Log($"edges ID = {edge.Index}");
+                        Debug.Log($"edge{i} = {t[i]} // point = P:{edge.P} / Q:{edge.Q}");
+                    }
+                }
+            }
+            */
+            
+            
         }
 
         void InitPoissonArray()
@@ -78,6 +116,33 @@ namespace KaizerWaldCode
                     }
                     Gizmos.DrawSphere(pdcs[i], 0.1f);
                 }
+            }
+            Gizmos.color = Color.blue;
+            if (drawTriangle && !(delaunayMethods is null))
+            {
+                delaunayMethods.ForEachTriangleEdge(edge =>
+                {
+                    if (edge.Index == 3)
+                    {
+                        Gizmos.color = Color.magenta;
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.blue;
+                    }
+                    Gizmos.DrawLine((edge.P), (edge.Q));
+                });
+            }
+
+            if (drawVoronoi && !(delaunayMethods is null))
+            {
+                delaunayMethods.ForEachVoronoiEdge(cell =>
+                {
+                    if (cell.Index != -1)
+                    {
+                        Gizmos.DrawLine((cell.P), (cell.Q));
+                    }
+                });
             }
         }
     }

@@ -72,7 +72,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             float dipAngle = islandRandom.NextFloat(PI2);
             float dipWidth = islandRandom.NextFloat(0.2f, 0.7f); // = mapSize?
 
-            float angle = atan2(point.z, point.x);
+            float angle = atan2(point.z, point.x); //more like : where am i on the circle
             float lengthMul = 0.5f; // 0.1f : big island 1.0f = small island // by increasing by 0.1 island size is reduced by 1
             float totalLength = mad(lengthMul, max(abs(point.x), abs(point.z)), length(point));
             

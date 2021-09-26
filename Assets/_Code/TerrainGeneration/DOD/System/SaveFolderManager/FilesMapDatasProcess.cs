@@ -54,6 +54,23 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 }
             }
         }
+        
+        private void CreateDelaunayDatasFiles(bool checkExist = true)
+        {
+            if (checkExist)
+                for (int j = 0; j < dir.DelaunayFilesPath.Length; j++)
+                {
+                    if (File.Exists(dir.GetDelaunayFileAt((DelaunayFiles)j))) continue;
+                    CreateFile(dir.GetDelaunayFileAt((DelaunayFiles)j));
+                }
+            else
+            {
+                for (int j = 0; j < dir.DelaunayFilesPath.Length; j++)
+                {
+                    CreateFile(dir.GetDelaunayFileAt((DelaunayFiles)j));
+                }
+            }
+        }
 
         private void CreateTrianglesFile(bool checkExist = true)
         {

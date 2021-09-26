@@ -209,6 +209,7 @@ namespace KaizerWaldCode.KwEditor
             {
                 if (uiSettings.FolderName != string.Empty)
                 {
+                    //Debug.Log($"test bool bitwise {0 == 0 & 1 == 0}");
                     //Debug.Log($"{(int)(11 >> 1)}");
                     mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
                     AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);

@@ -24,7 +24,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
             if (!Directory.Exists(dir.MapDatasPath)) { Directory.CreateDirectory(dir.MapDatasPath); }
-
+            
             if (!Directory.Exists(dir.FullMapDatasPath)) 
             { 
                 Directory.CreateDirectory(dir.FullMapDatasPath);
@@ -33,6 +33,16 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             else
             {
                 CreateFullMapFiles(true);
+            }
+
+            if (!Directory.Exists(dir.DelaunayDatasPath))
+            {
+                Directory.CreateDirectory(dir.DelaunayDatasPath);
+                CreateDelaunayDatasFiles(false);
+            }
+            else
+            {
+                CreateDelaunayDatasFiles(true);
             }
             
             //CHunks Shared Data Directory
@@ -61,12 +71,18 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     }
 
     [Serializable]
-    struct MapDirectories
+    public struct MapDirectories
     {
         public string SelectedSave;
+        public MapDirectories(in string path)
+        {
+            SelectedSave = path;
+        }
+        
         const string SaveFiles = "SaveFiles";
         const string MapDatas = "MapDatas";
         const string FullMapDatas = "FullMapDatas";
+        const string DelaunayDatas = "DelaunayDatas";
         const string Chunks = "Chunks";
         const string ChunksSharedData = "ChunksSharedData";
         const string Chunk = "Chunk";
@@ -79,11 +95,15 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         public readonly string SelectSavePath { get {return Path.Combine(Application.persistentDataPath, SaveFiles, SelectedSave); } }
         public readonly string MapDatasPath { get { return Path.Combine(SelectSavePath, MapDatas); } }
         public readonly string FullMapDatasPath { get { return Path.Combine(MapDatasPath, FullMapDatas); } }
+        public readonly string DelaunayDatasPath { get { return Path.Combine(FullMapDatasPath, DelaunayDatas); } }
         public readonly string ChunksPath { get { return Path.Combine(MapDatasPath, Chunks); } }
         public readonly string ChunksSharedDataPath { get { return Path.Combine(MapDatasPath, Chunks, ChunksSharedData); } }
 
         #region FILES
-
+        public readonly string GetDelaunayFileAt(in DelaunayFiles file)
+        {
+            return $"{DelaunayDatasPath}{DelaunayFilesPath[(int)file]}";
+        }
         public readonly string GetFullMapFileAt(in int file)
         {
             return $"{FullMapDatasPath}{FullMapFilesPath[file]}";
@@ -137,6 +157,22 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 };
             }
         }
+        
+        /// <summary>
+        /// Array containing all files path for the map as a whole
+        /// </summary>
+        public readonly string[] DelaunayFilesPath
+        {
+            get
+            {
+                return new string[]
+                {
+                    @"\triangles.json",
+                    @"\halfedges.json",
+                    @"\hull.json",
+                };
+            }
+        }
 
         //triangles are the same for each chunk (since it only define the draw order of the mesh)
         private const string ChunksTrianglesFile = @"\Triangles.json";
@@ -160,6 +196,14 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
         #endregion FILES
+    }
+    
+    [Flags]
+    public enum DelaunayFiles : int
+    {
+        triangles = 0,
+        halfedges = 1,
+        hull = 2,
     }
 
     [Flags]
