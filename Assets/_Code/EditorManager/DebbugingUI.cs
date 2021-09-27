@@ -15,22 +15,26 @@ namespace KaizerWaldCode
 {
     public class DebbugingUI : MonoBehaviour
     {
-        
-        public bool PoissonDiscDebug;
+        private bool voronoiEnable;
         private bool debugEnable;
         private bool arrayInit;
         private MapSettingsData mapSettings;
         private MapDirectories dir;
         private float3[] pdcs;
         private int[] island;
+        private float3[] verticesPos;
+        private int[] voronoies;
         private DelaunayMethods delaunayMethods;
         
+        [SerializeField] bool PoissonDiscDebug;
+        [SerializeField] bool VoronoiDebug;
         [SerializeField] bool drawTriangle = false;
         [SerializeField] bool drawVoronoi = false;
         private void Awake()
         {
             debugEnable = false;
             arrayInit = false;
+            voronoiEnable = false;
         }
 
         public void DebuggingEnable(SettingsData mapset, in string selectedSave)
@@ -77,6 +81,13 @@ namespace KaizerWaldCode
             
         }
 
+        public void VoronoiEnabling()
+        {
+            verticesPos = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos));
+            voronoies = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.Voronoi));
+            voronoiEnable = true;
+        }
+
         void InitPoissonArray()
         {
             if (PoissonDiscDebug)
@@ -101,6 +112,18 @@ namespace KaizerWaldCode
         void OnDrawGizmos()
         {
             if (!debugEnable || !PoissonDiscDebug) return;
+
+            if (VoronoiDebug && voronoiEnable)
+            {
+                for (int i = 0; i < verticesPos.Length; i++)
+                {
+                    byte c = (byte) math.min(255, voronoies[i]+(i*10)/(20+i));
+                    Color32 color = new Color32(c, c, c, 255);
+                    Gizmos.color = color;
+                    Gizmos.DrawWireSphere(verticesPos[i], 0.1f);
+                }
+            }
+            
             if (pdcs.Length != 0)
             {
                 for (int i = 0; i < pdcs.Length; i++)
