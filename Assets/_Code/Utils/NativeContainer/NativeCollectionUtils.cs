@@ -36,5 +36,16 @@ namespace KaizerWaldCode.Utils
         {
             for (int i = 0; i < arrayLength; i++) { array[i] = val; }
         }
+        
+        public static int GetNumValidValue<T>(in NativeArray<T> array, T val) where T : struct
+        {
+            int n = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i].Equals(val)) continue;
+                n++;
+            }
+            return n;
+        }
     }
 }

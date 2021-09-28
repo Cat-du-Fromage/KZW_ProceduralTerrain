@@ -278,15 +278,15 @@ MonoBehaviour:
   Seed: 0
   NewGame: 1
   MapSettings:
-    ChunkSize: 8
-    NumChunk: 2
+    ChunkSize: 10
+    NumChunk: 10
     PointPerMeter: 2
     CellSize: 4
     Seed: 34
-    MapSize: 16
-    ChunkPointPerAxis: 9
-    MapPointPerAxis: 17
-    NumCellMap: 4
+    MapSize: 100
+    ChunkPointPerAxis: 11
+    MapPointPerAxis: 101
+    NumCellMap: 25
     PointSpacing: 1
     Radius: 2.828427
   NoiseSettings:

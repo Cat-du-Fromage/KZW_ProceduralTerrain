@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using KaizerWaldCode.Utils;
 using Unity.Burst;
 using Unity.Collections;
@@ -12,6 +13,7 @@ using static Unity.Mathematics.math;
 using Random = Unity.Mathematics.Random;
 using static KaizerWaldCode.Utils.KWmath;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
+using Debug = UnityEngine.Debug;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
@@ -22,7 +24,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
         void IslandCoastProcess(in JobHandle dependency = new JobHandle())
         {
-            using (NativeArray<int> islandCoastID = AllocNtvAry<int>(sq(mapSettings.NumCellMap)))
+            using(NativeArray<int> islandCoastID = AllocNtvAry<int>(sq(mapSettings.NumCellMap)))
             {
                 NativeArray<float3> poissonDiscPosition = AllocNtvAry<float3>(sq(mapSettings.NumCellMap));
                 poissonDiscPosition.CopyFrom( JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)) );
@@ -36,7 +38,16 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 };
                 JobHandle islandCoastJH = islandCoastJ.ScheduleParallel(sq(mapSettings.NumCellMap), JobsUtility.JobWorkerCount - 1, dependency);
                 islandCoastJH.Complete();
-                JsonHelper.ToJson<int>(islandCoastID, dir.GetFullMapFileAt((int)FullMapFiles.Island));
+                
+                using (NativeList<int> tempContainer = new NativeList<int>(Allocator.Temp))
+                {
+                    for (int i = 0; i < islandCoastID.Length; i++)
+                    {
+                        if (islandCoastID[i] == -1) continue;
+                        tempContainer.Add(islandCoastID[i]);
+                    }
+                    JsonHelper.ToJson<int>(tempContainer.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.Island));
+                }
                 poissonDiscPosition.Dispose(islandCoastJH);
             }
         }
@@ -88,7 +99,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 radial1 = radial2 = 0.2f;
             }
 
-            JIslandPoissonDiscID[index] = select(0,1,totalLength < radial1 || (totalLength > radial1 * ISLAND_FACTOR && totalLength < radial2));
+            JIslandPoissonDiscID[index] = select(-1,index,totalLength < radial1 || (totalLength > radial1 * ISLAND_FACTOR && totalLength < radial2));
         }
     }
 }
