@@ -51,7 +51,7 @@ namespace KaizerWaldCode.Camera
                     x = select(cameraTransform.right, -cameraTransform.right, horizontal.x > 0);
                 if (horizontal.y != 0)
                     z = select(-currentCameraForward, currentCameraForward, horizontal.y > 0);
-                cameraTransform.position += (Vector3)(x + z) * (cameraTransform.position.y) * moveSpeed * sprint * Time.deltaTime;
+                cameraTransform.position += (Vector3)(x + z) * max(1f,cameraTransform.position.y) * moveSpeed * sprint * Time.deltaTime;
             }
 
             if (zoom != 0)
