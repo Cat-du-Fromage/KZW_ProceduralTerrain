@@ -14,7 +14,7 @@ namespace KaizerWaldCode.TerrainGeneration
 {
     
     [CreateAssetMenu(menuName = "Map Generation/Map Settings", fileName = "MapSettings")]
-    public class MapSettings : ScriptableObject
+    public class MapSettings : ScriptableObject, ISerializationCallbackReceiver
     {
         [Min(1)]
         [SerializeField] private int chunkSize;
@@ -22,7 +22,9 @@ namespace KaizerWaldCode.TerrainGeneration
         [SerializeField] private int numChunk;
         [Range(2, 10)]
         [SerializeField] private int pointPerMeter;
+        [SerializeField] private string saveFile;
 
+        public string SaveFile { get; private set; }
         public int ChunkSize { get; private set; }
         public int NumChunk { get; private set; }
         public int PointPerMeter { get; private set; }
@@ -42,8 +44,7 @@ namespace KaizerWaldCode.TerrainGeneration
         }
         #endif
 
-
-        private void Awake()
+        private void OnEnable()
         {
             ChunkSize = max(1, chunkSize);
             NumChunk = max(1, numChunk);
@@ -53,7 +54,23 @@ namespace KaizerWaldCode.TerrainGeneration
             PointSpacing = 1f / (pointPerMeter - 1f);
             ChunkPointPerAxis = (chunkSize * pointPerMeter) - (chunkSize - 1);
             MapPointPerAxis = (numChunk * chunkSize) * pointPerMeter - (numChunk * chunkSize - 1);
+            SaveFile = saveFile;
         }
 
+/*
+        private void Awake()
+        {
+            
+        }
+*/
+        public void OnBeforeSerialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnAfterDeserialize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

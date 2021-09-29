@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using Unity.Mathematics;
 using UnityEngine;
 using static KaizerWaldCode.Utils.KWmath;
@@ -16,12 +15,14 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     /// </summary>
     public partial class MapSystem : MonoBehaviour
     {
+        private MapSettings SO;
         private MapDirectories dir;
 
         private void GetOrCreateDirectories(in string folderName)
         {
             //dir.SelectedSave = folderName;
-
+            
+            
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
             if (!Directory.Exists(dir.MapDatasPath)) { Directory.CreateDirectory(dir.MapDatasPath); }
             
@@ -69,6 +70,18 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
     }
+    
+    public static class teststaticclass
+    {
+        private static readonly string a;
+
+        public static string save;
+        static teststaticclass()
+        {
+            a = save;
+        }
+        
+    }
 
     [Serializable]
     public struct MapDirectories
@@ -77,6 +90,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         public MapDirectories(in string path)
         {
             SelectedSave = path;
+            //teststaticclass.save = path;
+            //teststaticclass = new teststaticclass();
         }
         
         const string SaveFiles = "SaveFiles";
@@ -85,11 +100,10 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         const string DelaunayDatas = "DelaunayDatas";
         const string Chunks = "Chunks";
         const string ChunksSharedData = "ChunksSharedData";
-        const string Chunk = "Chunk";
 
         public readonly string GetChunk(in int x, in int y)
         {
-            return Path.Combine(ChunksPath, $"{Chunk}X{x}Y{y}");
+            return Path.Combine(ChunksPath, $"ChunkX{x}Y{y}");
         }
 
         public readonly string SelectSavePath { get {return Path.Combine(Application.persistentDataPath, SaveFiles, SelectedSave); } }
