@@ -14,7 +14,7 @@ namespace KaizerWaldCode.TerrainGeneration
 {
     
     [CreateAssetMenu(menuName = "Map Generation/Map Settings", fileName = "MapSettings")]
-    public class MapSettings : ScriptableObject, ISerializationCallbackReceiver
+    public class MapSettings : ScriptableObject//, ISerializationCallbackReceiver
     {
         [Min(1)]
         [SerializeField] private int chunkSize;
@@ -62,7 +62,7 @@ namespace KaizerWaldCode.TerrainGeneration
         {
             
         }
-*/
+
         public void OnBeforeSerialize()
         {
             throw new NotImplementedException();
@@ -72,5 +72,6 @@ namespace KaizerWaldCode.TerrainGeneration
         {
             throw new NotImplementedException();
         }
+        */
     }
 }

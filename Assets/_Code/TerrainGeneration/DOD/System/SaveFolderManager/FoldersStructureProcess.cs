@@ -86,12 +86,13 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     [Serializable]
     public struct MapDirectories
     {
+        //private static string SaveFilePath;
+        
         public string SelectedSave;
         public MapDirectories(in string path)
         {
             SelectedSave = path;
-            //teststaticclass.save = path;
-            //teststaticclass = new teststaticclass();
+            //SaveFilePath = path;
         }
         
         const string SaveFiles = "SaveFiles";
@@ -106,6 +107,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             return Path.Combine(ChunksPath, $"ChunkX{x}Y{y}");
         }
 
+        //public static readonly string SelectSavePath { get =>Path.Combine(Application.persistentDataPath, SaveFiles, SaveFilePath); }
+        //public readonly string SelectSavePath => Path.Combine(Application.persistentDataPath, SaveFiles, SaveFilePath);
         public readonly string SelectSavePath { get {return Path.Combine(Application.persistentDataPath, SaveFiles, SelectedSave); } }
         public readonly string MapDatasPath { get { return Path.Combine(SelectSavePath, MapDatas); } }
         public readonly string FullMapDatasPath { get { return Path.Combine(MapDatasPath, FullMapDatas); } }
