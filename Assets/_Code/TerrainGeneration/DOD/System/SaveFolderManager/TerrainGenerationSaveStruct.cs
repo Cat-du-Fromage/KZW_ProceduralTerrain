@@ -21,7 +21,6 @@ namespace KaizerWaldCode
 
         //bool SaveSelected = false; // will need to change value when entering Main Menu
         static string SaveFilePath = "DefaultSaveName";
-        //static readonly string SaveFilePath = "DefaultSaveName";
 
         const string Folder_SaveFiles = "SaveFiles";
         const string Folder_TerrainGen = "TerrainGeneration";
@@ -29,15 +28,14 @@ namespace KaizerWaldCode
         const string Folder_DelaunayDatas = "Delaunay";
         const string Folder_Chunks = "Chunks";
         const string Folder_ChunksSharedDatas = "ChunksSharedDatas";
+        //triangles are the same for each chunk (since it only define the draw order of the mesh)
+        const string File_ChunksSharedTriangles = @"\SharedTriangles.json";
+        const string File_ChunksSharedVertex = @"\SharedVertices.json";
 
         //FILES
         public static readonly string[] Files_Map;
         public static readonly string[] Files_Delaunay;
         public static readonly string[] Files_Chunk;
-
-        //triangles are the same for each chunk (since it only define the draw order of the mesh)
-        const string File_ChunksSharedTriangles = @"\SharedTriangles.json";
-        const string File_ChunksSharedVertex = @"\SharedVertices.json";
 
 #if UNITY_EDITOR
         [InitializeOnEnterPlayMode]
@@ -48,7 +46,6 @@ namespace KaizerWaldCode
                 SaveFilePath = "DefaultSaveName";
                 Debug.Log($"Entering PlayMode = {SaveFilePath}");
             }
-
         }
 #endif
 
@@ -59,12 +56,7 @@ namespace KaizerWaldCode
             {
                 SaveFilePath = path;
             }
-
-            for (int i = 0; i < Files_Map.Length; i++)
-            {
-                Debug.Log($"MapFil = {Files_Map[i]}");
-            }
-
+            
             Debug.Log($"InitSaveFIle Name {SaveFilePath}");
         }
 
