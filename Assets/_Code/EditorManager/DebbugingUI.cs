@@ -83,8 +83,8 @@ namespace KaizerWaldCode
 
         public void VoronoiEnabling()
         {
-            verticesPos = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos));
-            voronoies = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.Voronoi));
+            verticesPos = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.VerticesPos));
+            voronoies = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.Voronoi));
             voronoiEnable = true;
         }
 
@@ -92,12 +92,12 @@ namespace KaizerWaldCode
         {
             if (PoissonDiscDebug)
             {
-                if (JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
+                if (JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
                 {
                     pdcs = new float3[sq(mapSettings.NumCellMap)];
                     island = new int[sq(mapSettings.NumCellMap)];
-                    pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos));
-                    island = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.Island));
+                    pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.PoissonDiscPos));
+                    island = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.Island));
                 }
             }
         }

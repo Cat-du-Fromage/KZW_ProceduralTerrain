@@ -37,8 +37,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     };
                     JobHandle jobHandle = poissonDiscPerCellJob.ScheduleParallel(sq(mapSettings.NumCellMap), JobsUtility.JobWorkerCount - 1, dependency);
                     jobHandle.Complete();
-                    JsonHelper.ToJson<float3>(poissonDiscPos, dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos));
-                    JsonHelper.ToJson<int>(poissonDiscId, dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscId));
+                    JsonHelper.ToJson<float3>(poissonDiscPos, dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos));
+                    JsonHelper.ToJson<int>(poissonDiscId, dir.GetFullMapFileAt((int)MapFiles.PoissonDiscId));
                     pdcs = new float3[sq(mapSettings.NumCellMap)];
                     poissonDiscPos.CopyTo(pdcs);
                 }

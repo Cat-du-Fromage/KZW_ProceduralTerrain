@@ -12,6 +12,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
+using dir2 = KaizerWaldCode.Directories_MapGeneration;
 using static Unity.Mathematics.math;
 using static Unity.Mathematics.float3;
 using static KaizerWaldCode.Utils.KWmath;
@@ -41,7 +42,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 };
                 JobHandle vertPosJobHandle = vertPosJob.ScheduleParallel(sq(mapSettings.ChunkPointPerAxis), JobsUtility.JobWorkerCount - 1, dependency);
                 vertPosJobHandle.Complete();
-                JsonHelper.ToJson<float3>(verticesPos, dir.GetChunksSharedVertexFile());
+                JsonHelper.ToJson<float3>(verticesPos, dir2.GetFile_ChunksSharedVertex());
             }
         }
         /// <summary>
@@ -61,7 +62,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 };
                 JobHandle vertPosJobHandle = vertPosJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependency);
                 vertPosJobHandle.Complete();
-                JsonHelper.ToJson<float3>(verticesPos, dir.GetFullMapFileAt((int)FullMapFiles.VerticesPos));
+                JsonHelper.ToJson<float3>(verticesPos, dir.GetFullMapFileAt((int)MapFiles.VerticesPos));
             }
         }
 
@@ -70,7 +71,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             verticesCellIndex = AllocFillNtvAry<int>(mapPointSurface, -1);
             verticesPos = AllocNtvAry<float3>(mapPointSurface);
 
-            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
+            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.VerticesPos)));
             VerticesCellIndexProcessJob vertCellIdJob = new VerticesCellIndexProcessJob
             {
                 JNumCellMap = mapSettings.NumCellMap,
@@ -80,7 +81,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             };
             JobHandle vertCellIdJobHandle = vertCellIdJob.ScheduleParallel(mapPointSurface, JobsUtility.JobWorkerCount - 1, dependency);
             vertCellIdJobHandle.Complete();
-            JsonHelper.ToJson<int>(verticesCellIndex, dir.GetFullMapFileAt((int)FullMapFiles.VerticesCellIndex));
+            JsonHelper.ToJson<int>(verticesCellIndex, dir.GetFullMapFileAt((int)MapFiles.VerticesCellIndex));
 
             verticesPos.Dispose();
             verticesCellIndex.Dispose();

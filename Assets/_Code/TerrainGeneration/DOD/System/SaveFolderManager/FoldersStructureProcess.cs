@@ -15,7 +15,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     /// </summary>
     public partial class MapSystem : MonoBehaviour
     {
-        private MapSettings SO;
         private MapDirectories dir;
 
         private void GetOrCreateDirectories(in string folderName)
@@ -71,18 +70,6 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         }
     }
     
-    public static class teststaticclass
-    {
-        private static readonly string a;
-
-        public static string save;
-        static teststaticclass()
-        {
-            a = save;
-        }
-        
-    }
-
     [Serializable]
     public struct MapDirectories
     {
@@ -213,6 +200,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             }
         }
         #endregion FILES
+        
     }
     
     [Flags]
@@ -232,7 +220,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         PerlinNoise = 3,
     }
     [Flags]
-    public enum FullMapFiles : int
+    public enum MapFiles : int
     {
         VerticesPos = 0,
         VerticesCellIndex = 1,

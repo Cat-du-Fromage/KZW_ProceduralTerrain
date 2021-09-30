@@ -51,7 +51,7 @@ namespace KaizerWaldCode.KwDelaunay
             //Get Poisson Disc Pos From Json
             //=============================================================
             coords = AllocNtvAry<float3>(sq(set.NumCellMap));
-            coords.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)));
+            coords.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos)));
             
             //=============================================================
             //DELAUNAY IMPOSSIBLE
@@ -65,7 +65,7 @@ namespace KaizerWaldCode.KwDelaunay
             //maybe not needed since its only needed to get nearest point of circumcenter later
             //=================================================================================
             coordsId = AllocNtvAry<int>(n);
-            coordsId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscId)));
+            coordsId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscId)));
             
             int i0 = 0;
             int i1 = 0;

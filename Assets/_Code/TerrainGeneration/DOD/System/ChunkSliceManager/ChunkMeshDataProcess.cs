@@ -37,7 +37,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             uvsJobHandle.Complete();
             
             ToJson(triangles, dir.GetChunksTriangleFile());
-            ToJson(uvs, dir.GetFullMapFileAt((int)FullMapFiles.Uvs));
+            ToJson(uvs, dir.GetFullMapFileAt((int)MapFiles.Uvs));
             triangles.Dispose(); // free some memory
             
             sortedUvs = AllocNtvAry<float2>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis));

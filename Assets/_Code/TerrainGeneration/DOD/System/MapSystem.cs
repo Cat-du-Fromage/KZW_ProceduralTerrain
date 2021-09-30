@@ -15,57 +15,61 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.Utils.KWmath;
 using static KaizerWaldCode.KWSerialization.BinarySerialization;
 
+using dir2 = KaizerWaldCode.Directories_MapGeneration;
+
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     public partial class MapSystem : MonoBehaviour
     {
 
-        private SettingsData mapSettings;
-        private PerlinNoiseData noiseSettings;
+        SettingsData mapSettings;
+        PerlinNoiseData noiseSettings;
         
-        private int mapPointSurface;
+        int mapPointSurface;
 
-        private BitField32 bitfield;
+        BitField32 bitfield;
 
         //private GameObject[] chunks;
-        private ChunksData[] chunks;
+        ChunksData[] chunks;
 
-        private NativeArray<float3> verticesPos; // raw position calcul
-        private NativeArray<int> verticesCellIndex; // raw position calcul
+        NativeArray<float3> verticesPos; // raw position calcul
+        NativeArray<int> verticesCellIndex; // raw position calcul
 
-        private NativeArray<float3> sortedVerticesPos; // use for chunkSlice
-        private NativeArray<int> sortedVerticesCellIndex; // use for chunkSlice
+        NativeArray<float3> sortedVerticesPos; // use for chunkSlice
+        NativeArray<int> sortedVerticesCellIndex; // use for chunkSlice
         
-        private NativeArray<int> triangles;
-        private NativeArray<int> chunkTriangles;
-        private NativeArray<float2> uvs;
-        private NativeArray<float2> sortedUvs;
+        NativeArray<int> triangles;
+        NativeArray<int> chunkTriangles;
+        NativeArray<float2> uvs;
+        NativeArray<float2> sortedUvs;
         
         //NOISE
-        private NativeArray<float2> noiseOffsetsMap;
-        private NativeArray<float> perlinNoiseMap;
-        private NativeArray<float> sortedPerlinNoiseMap;
+        NativeArray<float2> noiseOffsetsMap;
+        NativeArray<float> perlinNoiseMap;
+        NativeArray<float> sortedPerlinNoiseMap;
 
         private JobHandle gDependency; // needed for jobs system
 
         public void LoadMap(in SettingsData mapSet, in PerlinNoiseData noiseSet , in bool newGame, in string folderName = "default")
         {
+            Directories_MapGeneration testDir = new Directories_MapGeneration(in folderName);
+            Debug.Log(Directories_MapGeneration.ToString());
             bitfield = new BitField32(uint.MaxValue);
             mapSettings = mapSet;
             noiseSettings = noiseSet;
             mapPointSurface = sq(mapSet.MapPointPerAxis);
 
-            dir = new MapDirectories(folderName);
+            //dir = new MapDirectories(folderName);
             //dir.SelectedSave = folderName;
             
             if (newGame)
             {
                 //Destroy any existing save with the same name
-                if (Directory.Exists(dir.SelectSavePath))
+                if (Directory.Exists(dir2.GetFolder_SelectedSave))
                 {
-                    Directory.Delete(dir.SelectSavePath, true);
+                    Directory.Delete(dir2.GetFolder_SelectedSave, true);
                 }
-                GetOrCreateDirectories(folderName);
+                
                 LoadNewMap();
             }
             else
@@ -81,6 +85,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public void LoadNewMap()
         {
+            TerrainGenerationDirectoriesTree testTree = new TerrainGenerationDirectoriesTree(mapSettings);
             VerticesPositionProcess();
             SharedVerticesPositionProcess();
             VerticesCellIndexProcess();

@@ -35,7 +35,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             
             //Vertices Cell Index
             verticesCellIndex = AllocNtvAry<int>(sq(mapPoints));
-            verticesCellIndex.CopyFrom(FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
+            verticesCellIndex.CopyFrom(FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.VerticesCellIndex)));
             sortedVerticesCellIndex = AllocNtvAry<int>(sq(mapSettings.NumChunk) * sq(chunkPoints));
             
             //Noise Map

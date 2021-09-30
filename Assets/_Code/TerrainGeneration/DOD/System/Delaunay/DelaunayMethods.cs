@@ -29,7 +29,7 @@ namespace KaizerWaldCode.KwDelaunay
             Triangles = JsonHelper.FromJson<int>(dir.GetDelaunayFileAt(DelaunayFiles.triangles));
             Halfedges = JsonHelper.FromJson<int>(dir.GetDelaunayFileAt(DelaunayFiles.halfedges));
             hull = JsonHelper.FromJson<int>(dir.GetDelaunayFileAt(DelaunayFiles.hull));
-            Points = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos));
+            Points = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos));
         }
         
         #region GetMethods

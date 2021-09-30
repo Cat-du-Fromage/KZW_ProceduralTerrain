@@ -50,7 +50,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                     };
                     JobHandle perlinNoiseJH = perlinNoiseJ.ScheduleParallel(sq(mapSettings.MapPointPerAxis), JobsUtility.JobWorkerCount - 1, offsetsJH);
                     perlinNoiseJH.Complete();
-                    JsonHelper.ToJson<float>(perlinNoiseMap, dir.GetFullMapFileAt((int)FullMapFiles.Noise));
+                    JsonHelper.ToJson<float>(perlinNoiseMap, dir.GetFullMapFileAt((int)MapFiles.Noise));
                     /*
                     using (sortedPerlinNoiseMap = AllocNtvAry<float>(sq(mapSettings.NumChunk) * sq(mapSettings.ChunkPointPerAxis)))
                     {

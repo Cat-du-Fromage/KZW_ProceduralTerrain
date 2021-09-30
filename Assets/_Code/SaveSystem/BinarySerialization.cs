@@ -56,9 +56,7 @@ namespace KaizerWaldCode.KWSerialization
 
         public static void CreateFile(in string fullPath)
         {
-            FileStream stream = File.Create(fullPath);
-            stream.Close();
-            stream.Dispose();
+            using (FileStream stream = File.Create(fullPath)) ;
         }
 
         public static T[] Load2<T>(in string fullPath, in int length) where T : struct

@@ -27,7 +27,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             using(NativeArray<int> islandCoastID = AllocNtvAry<int>(sq(mapSettings.NumCellMap)))
             {
                 NativeArray<float3> poissonDiscPosition = AllocNtvAry<float3>(sq(mapSettings.NumCellMap));
-                poissonDiscPosition.CopyFrom( JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)FullMapFiles.PoissonDiscPos)) );
+                poissonDiscPosition.CopyFrom( JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos)) );
 
                 IslandCoastJob islandCoastJ = new IslandCoastJob
                 {
@@ -46,7 +46,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                         if (islandCoastID[i] == -1) continue;
                         tempContainer.Add(islandCoastID[i]);
                     }
-                    JsonHelper.ToJson<int>(tempContainer.ToArray(), dir.GetFullMapFileAt((int)FullMapFiles.Island));
+                    JsonHelper.ToJson<int>(tempContainer.ToArray(), dir.GetFullMapFileAt((int)MapFiles.Island));
                 }
                 poissonDiscPosition.Dispose(islandCoastJH);
             }

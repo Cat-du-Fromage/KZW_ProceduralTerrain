@@ -22,11 +22,11 @@ namespace KaizerWaldCode.TerrainGeneration
         public static void VoronoiMap(in MapDirectories dir ,in MapSettingsData mapData, in JobHandle dependency = new JobHandle())
         {
             using NativeArray<float3> verticesPos = AllocNtvAry<float3>(sq(mapData.MapPointPerAxis));
-            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesPos)));
+            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.VerticesPos)));
             using NativeArray<int> verticesCellId = AllocNtvAry<int>(sq(mapData.MapPointPerAxis));
-            verticesCellId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) FullMapFiles.VerticesCellIndex)));
+            verticesCellId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.VerticesCellIndex)));
             using NativeArray<float3> samplesPos = AllocNtvAry<float3>(sq(mapData.NumCellMap));
-            samplesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) FullMapFiles.PoissonDiscPos)));
+            samplesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.PoissonDiscPos)));
 
             using NativeArray<int> voronoies = AllocNtvAry<int>(sq(mapData.MapPointPerAxis));
 
@@ -40,7 +40,7 @@ namespace KaizerWaldCode.TerrainGeneration
             };
             JobHandle vornoiJH = vornoiJ.ScheduleParallel(verticesPos.Length, JobsUtility.JobWorkerCount - 1, dependency);
             vornoiJH.Complete();
-            JsonHelper.ToJson(voronoies, dir.GetFullMapFileAt((int)FullMapFiles.Voronoi));
+            JsonHelper.ToJson(voronoies, dir.GetFullMapFileAt((int)MapFiles.Voronoi));
         }
         
         
