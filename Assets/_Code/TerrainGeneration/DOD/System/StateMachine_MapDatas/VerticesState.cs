@@ -19,13 +19,13 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.KWSerialization.BinarySerialization;
 using Debug = UnityEngine.Debug;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
     public class VerticesState : IState
     {
         readonly SettingsData mapSettings;
         readonly int mapTotalPoints;
-        public VerticesState(SettingsData mapSettings)
+        public VerticesState(in SettingsData mapSettings)
         {
             this.mapSettings = mapSettings;
             mapTotalPoints = sq(mapSettings.MapPointPerAxis);

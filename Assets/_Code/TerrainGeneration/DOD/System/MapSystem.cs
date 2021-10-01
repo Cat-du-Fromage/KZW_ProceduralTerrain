@@ -101,7 +101,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             MeshDatasProcess();
             BuildMeshesProcess();
             DelaunaySystem tstDel = new DelaunaySystem(dir.SelectedSave, mapSettings);
-            VoronoiProcess.VoronoiMap(dir, mapSettings);
+            //VoronoiProcess.VoronoiMap(dir, mapSettings);
         }
         
         void OnDestroy()

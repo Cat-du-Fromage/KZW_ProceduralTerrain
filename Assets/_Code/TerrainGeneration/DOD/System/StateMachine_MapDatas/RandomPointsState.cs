@@ -18,7 +18,7 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 
 using dir = KaizerWaldCode.Directories_MapGeneration;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
     public class RandomPointsState : IState
     {

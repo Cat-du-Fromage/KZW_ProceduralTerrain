@@ -5,38 +5,42 @@ using KaizerWaldCode.TerrainGeneration;
 using KaizerWaldCode.TerrainGeneration.Data;
 using UnityEngine;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
     [Flags]
-    enum State_MapDatas : int
+    public enum EStateMapDatas : int
     {
         Vertices     = 0,
         RandomPoints = 1,
+        Voronoi      = 2,
         End          = Int32.MaxValue, 
     }
     
-    public class MapDatasStateMachine : IStateMachine
+    public class MapDatasStateMachine : IStateMachine<EStateMapDatas>
     {
-        public readonly int numStates = Enum.GetValues(typeof(State_MapDatas)).Length - 1;
-        Queue<State_MapDatas> states;
+        public readonly int numStates = Enum.GetValues(typeof(EStateMapDatas)).Length - 1;
+        public List<EStateMapDatas> States { get; set; }
         
         //States
         VerticesState verticesState;
         RandomPointsState randomPointsState;
+        VoronoiState voronoiState;
 
         public MapDatasStateMachine(in SettingsData mapSettings)
         {
-            verticesState = new VerticesState(mapSettings);
-            randomPointsState = new RandomPointsState(mapSettings);
+            verticesState = new VerticesState(in mapSettings);
+            randomPointsState = new RandomPointsState(in mapSettings);
+            voronoiState = new VoronoiState(in mapSettings);
         }
 
         public void InitializeStateMachine()
         {
-            states = new Queue<State_MapDatas>(numStates);
-            foreach (State_MapDatas state in Enum.GetValues(typeof(State_MapDatas)))
+            States = new List<EStateMapDatas>(numStates);
+            
+            foreach (EStateMapDatas state in Enum.GetValues(typeof(EStateMapDatas)))
             {
-                if (state == State_MapDatas.End) break;
-                states.Enqueue(state);
+                if (state == EStateMapDatas.End) continue;
+                States.Add(state);
             }
             StateMachineStart();
         }
@@ -45,19 +49,22 @@ namespace KaizerWaldCode
         {
             for (int i = 0; i < numStates; i++)
             {
-                ChangeState(states.Dequeue());
+                ChangeState(States[i]);
             }
         }
         
-        void ChangeState(State_MapDatas current)
+        void ChangeState(EStateMapDatas current)
         {
             switch(current)
             {
-                case State_MapDatas.Vertices:
+                case EStateMapDatas.Vertices:
                     verticesState.DoState();
                     break;
-                case State_MapDatas.RandomPoints:
+                case EStateMapDatas.RandomPoints:
                     randomPointsState.DoState();
+                    break;
+                case EStateMapDatas.Voronoi:
+                    voronoiState.DoState();
                     break;
                 default:
                     break;

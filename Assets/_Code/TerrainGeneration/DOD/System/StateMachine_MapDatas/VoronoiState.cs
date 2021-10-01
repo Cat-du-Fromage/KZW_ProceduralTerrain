@@ -15,47 +15,51 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static Unity.Mathematics.math;
 using int2 = Unity.Mathematics.int2;
 
+using dir = KaizerWaldCode.Directories_MapGeneration;
+
 namespace KaizerWaldCode.TerrainGeneration
 {
-    public static class VoronoiProcess
+    public class VoronoiState : IState
     {
-        public static void VoronoiMap(in MapDirectories dir ,in MapSettingsData mapData, in JobHandle dependency = new JobHandle())
+        readonly SettingsData mapSettings;
+        readonly int mapTotalPoints;
+
+        public VoronoiState(in SettingsData mapSettings)
         {
-            using NativeArray<float3> verticesPos = AllocNtvAry<float3>(sq(mapData.MapPointPerAxis));
-            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.VerticesPos)));
-            using NativeArray<int> verticesCellId = AllocNtvAry<int>(sq(mapData.MapPointPerAxis));
-            verticesCellId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.VerticesCellIndex)));
-            using NativeArray<float3> samplesPos = AllocNtvAry<float3>(sq(mapData.NumCellMap));
-            samplesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.PoissonDiscPos)));
+            this.mapSettings = mapSettings;
+            mapTotalPoints = sq(mapSettings.MapPointPerAxis);
+        }
 
-            using NativeArray<int> voronoies = AllocNtvAry<int>(sq(mapData.MapPointPerAxis));
+        public void DoState()
+        {
+            VoronoiMap();
+        }
 
-            VoronoiCellGridJob vornoiJ = new VoronoiCellGridJob()
+        private void VoronoiMap(in JobHandle dependency = new JobHandle())
+        {
+            using NativeArray<float3> verticesPos = AllocNtvAry<float3>(mapTotalPoints);
+            using NativeArray<int> verticesCellId = AllocNtvAry<int>(mapTotalPoints);
+            using NativeArray<float3> samplesPos = AllocNtvAry<float3>(sq(mapSettings.NumCellMap));
+            //Get Values From Json
+            verticesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFile_MapAt(MapFiles.VerticesPos)));
+            verticesCellId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFile_MapAt(MapFiles.VerticesCellIndex)));
+            samplesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFile_MapAt(MapFiles.PoissonDiscPos)));
+
+            using NativeArray<int> voronoies = AllocNtvAry<int>(mapTotalPoints);
+
+            VoronoiCellGridJob job = new VoronoiCellGridJob()
             {
-                NumCellJob = mapData.NumCellMap,
+                NumCellJob = mapSettings.NumCellMap,
                 JVerticesPos = verticesPos,
                 JSamplesPos = samplesPos,
                 JVerticesCellIndex = verticesCellId,
                 JVoronoiVertices = voronoies,
             };
-            JobHandle vornoiJH = vornoiJ.ScheduleParallel(verticesPos.Length, JobsUtility.JobWorkerCount - 1, dependency);
-            vornoiJH.Complete();
-            JsonHelper.ToJson(voronoies, dir.GetFullMapFileAt((int)MapFiles.Voronoi));
+            JobHandle jobHandle = job.ScheduleParallel(mapTotalPoints, JobsUtility.JobWorkerCount - 1, dependency);
+            jobHandle.Complete();
+            JsonHelper.ToJson(voronoies, dir.GetFile_MapAt(MapFiles.Voronoi));
         }
-        
-        
-        public static VoronoiCellGridJob VoronoiCalculation(int numCellMap, NativeArray<int> verticesIndex, NativeArray<float3> verticesPos, NativeArray<float3> samplesPos, NativeArray<int> voronoies)
-        {
-            return new VoronoiCellGridJob()
-            {
-                NumCellJob = numCellMap,
-                JVerticesPos = verticesPos,
-                JSamplesPos = samplesPos,
-                JVerticesCellIndex = verticesIndex,
-                JVoronoiVertices = voronoies,
-            };
-        }
-        
+
         [BurstCompile(CompileSynchronously = true)]
         public struct VoronoiCellGridJob : IJobFor
         {
@@ -65,17 +69,17 @@ namespace KaizerWaldCode.TerrainGeneration
             [ReadOnly] public NativeArray<int> JVerticesCellIndex;
             [ReadOnly] public NativeArray<float3> JSamplesPos;
 
-            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<int> JVoronoiVertices;
+            [NativeDisableParallelForRestriction] [WriteOnly]
+            public NativeArray<int> JVoronoiVertices;
 
             public void Execute(int index)
             {
                 int2 xRange;
                 int2 yRange;
                 int numCell;
-
                 CellGridRanges(JVerticesCellIndex[index], out xRange, out yRange, out numCell);
+                
                 NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-
                 int cellCount = 0;
                 for (int y = yRange.x; y <= yRange.y; y++)
                 {
@@ -86,14 +90,14 @@ namespace KaizerWaldCode.TerrainGeneration
                         cellCount++;
                     }
                 }
-
+                
                 NativeArray<float> distances = new NativeArray<float>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 for (int i = 0; i < numCell; i++)
                 {
                     distances[i] = distancesq(JVerticesPos[index], JSamplesPos[cellsIndex[i]]);
                 }
 
-                JVoronoiVertices[index] = IndexMin(distances, cellsIndex);
+                JVoronoiVertices[index] = IndexMin(in distances, in cellsIndex);
             }
 
             /// <summary>
@@ -106,7 +110,7 @@ namespace KaizerWaldCode.TerrainGeneration
             /// <param name="numCell"></param>
             void CellGridRanges(int cell, out int2 xRange, out int2 yRange, out int numCell)
             {
-                int y = (int)floor((float)cell / NumCellJob);
+                int y = (int) floor((float) cell / NumCellJob);
                 int x = cell - mul(y, NumCellJob);
 
                 bool corner = (x == 0 && y == 0) || (x == 0 && y == NumCellJob - 1) ||
@@ -127,7 +131,7 @@ namespace KaizerWaldCode.TerrainGeneration
             /// <param name="dis">array containing float distance value from point to his neighbors</param>
             /// <param name="cellIndex">array storing index of float2 position of poissonDiscSamples </param>
             /// <returns>index of the closest point</returns>
-            int IndexMin(NativeArray<float> dis, NativeArray<int> cellIndex)
+            int IndexMin(in NativeArray<float> dis, in NativeArray<int> cellIndex)
             {
                 float val = float.MaxValue;
                 int index = 0;
