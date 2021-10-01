@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -37,7 +38,7 @@ namespace KaizerWaldCode.Utils
             for (int i = 0; i < arrayLength; i++) { array[i] = val; }
         }
         
-        public static int GetNumValidValue<T>(in NativeArray<T> array, T val) where T : struct
+        public static int NumValueNotEqualTo<T>(in NativeArray<T> array, T val) where T : struct
         {
             int n = 0;
             for (int i = 0; i < array.Length; i++)
@@ -48,5 +49,23 @@ namespace KaizerWaldCode.Utils
             return n;
         }
         
+        public static T[] RemoveDuplicates<T>(T[] s) where T : struct
+        {
+            HashSet<T> set = new HashSet<T>(s);
+            T[] result = new T[set.Count];
+            set.CopyTo(result);
+            return result;
+        }
+        
+        public static NativeArray<T> RemoveDuplicates<T>(in NativeArray<T> s, Allocator a = Allocator.TempJob, NativeArrayOptions nao = NativeArrayOptions.UninitializedMemory) 
+            where T : struct
+        {
+            Debug.Log($"base NativeArray length = {s.Length}");
+            HashSet<T> set = new HashSet<T>(s);
+            NativeArray<T> result = new NativeArray<T>(set.Count, a, nao);
+            Debug.Log($"NEW NativeArray length = {set.Count}");
+            result.CopyFrom(s);
+            return result;
+        }
     }
 }

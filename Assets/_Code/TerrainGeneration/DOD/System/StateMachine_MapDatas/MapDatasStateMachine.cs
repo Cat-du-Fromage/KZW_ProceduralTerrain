@@ -31,14 +31,17 @@ namespace KaizerWaldCode.TerrainGeneration
             verticesState = new VerticesState(in mapSettings);
             randomPointsState = new RandomPointsState(in mapSettings);
             voronoiState = new VoronoiState(in mapSettings);
+            InitializeStateMachine();
         }
 
         public void InitializeStateMachine()
         {
+            Debug.Log($"Init OK");
             States = new List<EStateMapDatas>(numStates);
             
             foreach (EStateMapDatas state in Enum.GetValues(typeof(EStateMapDatas)))
             {
+                Debug.Log($"Launch {state}");
                 if (state == EStateMapDatas.End) continue;
                 States.Add(state);
             }

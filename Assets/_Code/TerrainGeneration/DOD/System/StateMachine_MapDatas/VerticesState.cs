@@ -33,6 +33,7 @@ namespace KaizerWaldCode.TerrainGeneration
         
         public void DoState()
         {
+            Debug.Log($"DoState Vertices");
             VerticesPositionProcess();
             VerticesCellIndexProcess();
             SharedVerticesPositionProcess();

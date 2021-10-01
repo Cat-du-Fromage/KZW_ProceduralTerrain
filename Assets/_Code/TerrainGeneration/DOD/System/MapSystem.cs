@@ -86,6 +86,8 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         public void LoadNewMap()
         {
             TerrainGenerationDirectoriesTree testTree = new TerrainGenerationDirectoriesTree(mapSettings);
+            MapDatasStateMachine testState = new MapDatasStateMachine(in mapSettings);
+            /*
             VerticesPositionProcess();
             SharedVerticesPositionProcess();
             VerticesCellIndexProcess();
@@ -101,6 +103,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             MeshDatasProcess();
             BuildMeshesProcess();
             DelaunaySystem tstDel = new DelaunaySystem(dir.SelectedSave, mapSettings);
+            */
             //VoronoiProcess.VoronoiMap(dir, mapSettings);
         }
         

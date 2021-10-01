@@ -10,6 +10,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 using static KaizerWaldCode.Utils.KWmath;
+using dir = KaizerWaldCode.Directories_MapGeneration;
 
 namespace KaizerWaldCode
 {
@@ -19,7 +20,7 @@ namespace KaizerWaldCode
         private bool debugEnable;
         private bool arrayInit;
         private MapSettingsData mapSettings;
-        private MapDirectories dir;
+        //private MapDirectories dir;
         private float3[] pdcs;
         private int[] island;
         private float3[] verticesPos;
@@ -37,15 +38,15 @@ namespace KaizerWaldCode
             voronoiEnable = false;
         }
 
-        public void DebuggingEnable(SettingsData mapset, in string selectedSave)
+        public void DebuggingEnable(in SettingsData mapset, in string selectedSave)
         {
             mapSettings = mapset;
             debugEnable = true;
-            dir.SelectedSave = selectedSave;
+            //dir.SelectedSave = selectedSave;
             pdcs = new float3[sq(mapSettings.NumCellMap)];
             island = new int[sq(mapSettings.NumCellMap)];
             InitPoissonArray();
-            delaunayMethods = new DelaunayMethods(dir.SelectedSave);
+            //delaunayMethods = new DelaunayMethods(dir.SelectedSave);
 
 /*
             foreach (var voronoiCell in delaunayMethods.GetVoronoiCells())
@@ -83,8 +84,8 @@ namespace KaizerWaldCode
 
         public void VoronoiEnabling()
         {
-            verticesPos = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.VerticesPos));
-            voronoies = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.Voronoi));
+            verticesPos = JsonHelper.FromJson<float3>(dir.GetFile_MapAt((int) MapFiles.VerticesPos));
+            voronoies = JsonHelper.FromJson<int>(dir.GetFile_MapAt((int) MapFiles.Voronoi));
             voronoiEnable = true;
         }
 
@@ -92,12 +93,12 @@ namespace KaizerWaldCode
         {
             if (PoissonDiscDebug)
             {
-                if (JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int)MapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
+                if (JsonHelper.FromJson<float3>(dir.GetFile_MapAt((int)MapFiles.PoissonDiscPos)).Length == sq(mapSettings.NumCellMap))
                 {
                     pdcs = new float3[sq(mapSettings.NumCellMap)];
                     island = new int[sq(mapSettings.NumCellMap)];
-                    pdcs = JsonHelper.FromJson<float3>(dir.GetFullMapFileAt((int) MapFiles.PoissonDiscPos));
-                    island = JsonHelper.FromJson<int>(dir.GetFullMapFileAt((int) MapFiles.Island));
+                    pdcs = JsonHelper.FromJson<float3>(dir.GetFile_MapAt((int) MapFiles.PoissonDiscPos));
+                    island = JsonHelper.FromJson<int>(dir.GetFile_MapAt((int) MapFiles.Island));
                 }
             }
         }

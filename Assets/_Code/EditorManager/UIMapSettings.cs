@@ -215,8 +215,8 @@ namespace KaizerWaldCode.KwEditor
                     mapSystemPrefab = serializedObject.FindProperty("MapSystemPrefab");
                     AsyncOperationHandle<GameObject> csHandle = LoadSingleAssetSync<GameObject>(uiSettings.MapSystemPrefab);
                     csHandle.Result.GetComponent<MapSystem>().LoadMap(uiSettings.MapSettings, uiSettings.NoiseSettings, newGame.boolValue, uiSettings.FolderName);
-                    uiSettings.ui.DebuggingEnable(uiSettings.MapSettings, uiSettings.FolderName);
-                    uiSettings.ui.VoronoiEnabling();
+                    //uiSettings.ui.DebuggingEnable(uiSettings.MapSettings, uiSettings.FolderName);
+                    //uiSettings.ui.VoronoiEnabling();
                     Addressables.Release(csHandle);
                 }
                 else
