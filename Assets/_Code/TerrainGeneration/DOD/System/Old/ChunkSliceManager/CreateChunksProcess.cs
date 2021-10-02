@@ -22,7 +22,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
     public partial class MapSystem : MonoBehaviour
     {
-        [SerializeField] private AssetReference chunk;
+        [SerializeField] private AssetReferenceGameObject chunk;
 
         void CreateChunkProcess()
         {

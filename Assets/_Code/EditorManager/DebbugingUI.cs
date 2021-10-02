@@ -10,9 +10,9 @@ using Unity.Mathematics;
 using UnityEngine;
 
 using static KaizerWaldCode.Utils.KWmath;
-using dir = KaizerWaldCode.Directories_MapGeneration;
+using dir = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
     public class DebbugingUI : MonoBehaviour
     {
@@ -25,7 +25,7 @@ namespace KaizerWaldCode
         private int[] island;
         private float3[] verticesPos;
         private int[] voronoies;
-        private DelaunayMethods delaunayMethods;
+        private KwDelaunay.DelaunayMethods delaunayMethods;
         
         [SerializeField] bool PoissonDiscDebug;
         [SerializeField] bool VoronoiDebug;

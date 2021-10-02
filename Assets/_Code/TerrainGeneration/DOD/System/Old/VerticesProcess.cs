@@ -12,7 +12,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
-using dir2 = KaizerWaldCode.Directories_MapGeneration;
+using dir2 = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 using static Unity.Mathematics.math;
 using static Unity.Mathematics.float3;
 using static KaizerWaldCode.Utils.KWmath;

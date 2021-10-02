@@ -25,7 +25,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
     {
         void BuildMeshesProcess()
         {
-            chunkTriangles = AllocNtvAry<int>(sq(mapSettings.ChunkPointPerAxis-1) * 6, NativeArrayOptions.ClearMemory);
+            chunkTriangles = AllocNtvAryOption<int>(sq(mapSettings.ChunkPointPerAxis-1) * 6, NativeArrayOptions.ClearMemory);
             chunkTriangles.CopyFrom(FromJson<int>(dir.GetChunksTriangleFile()));
             
             for (int i = 0; i < chunks.Length; i++)

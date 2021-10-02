@@ -13,42 +13,43 @@ namespace KaizerWaldCode.TerrainGeneration
         Vertices     = 0,
         RandomPoints = 1,
         Voronoi      = 2,
-        End          = Int32.MaxValue, 
+        Uvs          = 3,
+        End          = int.MaxValue, 
     }
     
-    public class MapDatasStateMachine : IStateMachine<EStateMapDatas>
+    public sealed class MapDatasStateMachine : IFiniteStateMachine<EStateMapDatas>
     {
-        public readonly int numStates = Enum.GetValues(typeof(EStateMapDatas)).Length - 1;
+        readonly int numStates = Enum.GetValues(typeof(EStateMapDatas)).Length - 1;
         public List<EStateMapDatas> States { get; set; }
         
         //States
         VerticesState verticesState;
         RandomPointsState randomPointsState;
         VoronoiState voronoiState;
+        UvsState uvsState;
 
         public MapDatasStateMachine(in SettingsData mapSettings)
         {
             verticesState = new VerticesState(in mapSettings);
             randomPointsState = new RandomPointsState(in mapSettings);
             voronoiState = new VoronoiState(in mapSettings);
+            uvsState = new UvsState(in mapSettings);
             InitializeStateMachine();
         }
 
         public void InitializeStateMachine()
         {
-            Debug.Log($"Init OK");
             States = new List<EStateMapDatas>(numStates);
             
             foreach (EStateMapDatas state in Enum.GetValues(typeof(EStateMapDatas)))
             {
-                Debug.Log($"Launch {state}");
-                if (state == EStateMapDatas.End) continue;
+                if (state == EStateMapDatas.End) break;
                 States.Add(state);
             }
             StateMachineStart();
         }
 
-        void StateMachineStart()
+        public void StateMachineStart()
         {
             for (int i = 0; i < numStates; i++)
             {
@@ -56,7 +57,7 @@ namespace KaizerWaldCode.TerrainGeneration
             }
         }
         
-        void ChangeState(EStateMapDatas current)
+        public void ChangeState(EStateMapDatas current)
         {
             switch(current)
             {
@@ -68,6 +69,9 @@ namespace KaizerWaldCode.TerrainGeneration
                     break;
                 case EStateMapDatas.Voronoi:
                     voronoiState.DoState();
+                    break;
+                case EStateMapDatas.Uvs:
+                    uvsState.DoState();
                     break;
                 default:
                     break;

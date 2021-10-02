@@ -203,33 +203,5 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
         
     }
     
-    [Flags]
-    public enum DelaunayFiles : int
-    {
-        triangles = 0,
-        halfedges = 1,
-        hull = 2,
-    }
-
-    [Flags]
-    public enum ChunkFiles : int
-    {
-        VerticesPos = 0,
-        VerticesCellIndex = 1,
-        Uvs = 2,
-        PerlinNoise = 3,
-    }
-    [Flags]
-    public enum MapFiles : int
-    {
-        VerticesPos = 0,
-        VerticesCellIndex = 1,
-        PoissonDiscPos = 2,
-        PoissonDiscId = 3,
-        Uvs = 4,
-        Voronoi = 5,
-        Island = 6,
-        Noise = 7,
-        FallOff = 8,
-    }
+    
 }

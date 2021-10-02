@@ -15,7 +15,7 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static Unity.Mathematics.math;
 using int2 = Unity.Mathematics.int2;
 
-using dir = KaizerWaldCode.Directories_MapGeneration;
+using dir = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 
 namespace KaizerWaldCode.TerrainGeneration
 {
@@ -27,7 +27,7 @@ namespace KaizerWaldCode.TerrainGeneration
         public VoronoiState(in SettingsData mapSettings)
         {
             this.mapSettings = mapSettings;
-            mapTotalPoints = sq(mapSettings.MapPointPerAxis);
+            mapTotalPoints = sq(in mapSettings.MapPointPerAxis);
         }
 
         public void DoState()
@@ -45,7 +45,7 @@ namespace KaizerWaldCode.TerrainGeneration
             verticesCellId.CopyFrom(JsonHelper.FromJson<int>(dir.GetFile_MapAt(MapFiles.VerticesCellIndex)));
             samplesPos.CopyFrom(JsonHelper.FromJson<float3>(dir.GetFile_MapAt(MapFiles.PoissonDiscPos)));
 
-            using NativeArray<int> voronoies = AllocNtvAry<int>(mapTotalPoints);
+            using NativeArray<int> voronoies = AllocNtvAry<int>(in mapTotalPoints);
 
             VoronoiCellGridJob job = new VoronoiCellGridJob()
             {

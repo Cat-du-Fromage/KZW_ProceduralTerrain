@@ -10,8 +10,37 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
+    [Flags]
+    public enum DelaunayFiles : int
+    {
+        triangles = 0,
+        halfedges = 1,
+        hull = 2,
+    }
+
+    [Flags]
+    public enum ChunkFiles : int
+    {
+        VerticesPos = 0,
+        VerticesCellIndex = 1,
+        Uvs = 2,
+        PerlinNoise = 3,
+    }
+    [Flags]
+    public enum MapFiles : int
+    {
+        VerticesPos = 0,
+        VerticesCellIndex = 1,
+        PoissonDiscPos = 2,
+        PoissonDiscId = 3,
+        Uvs = 4,
+        Voronoi = 5,
+        Island = 6,
+        Noise = 7,
+        FallOff = 8,
+    }
     public class Directories_MapGeneration
     {
         public static string ToString()
@@ -126,7 +155,7 @@ namespace KaizerWaldCode
         /// <param name="y">Y position of the Chunk</param>
         /// <returns>full path to the chunk (in "Chunks folder")</returns>
         public static string GetFolder_ChunkXY(in int x, in int y) => Path.Combine(GetFolder_Chunks, $"ChunkX{x}Y{y}");
-
+        public static string GetFolder_ChunkXY(in int2 pos) => Path.Combine(GetFolder_Chunks, $"ChunkX{pos.x}Y{pos.y}");
         #endregion GET FOLDER METHODS
         
         //========================
@@ -149,8 +178,9 @@ namespace KaizerWaldCode
         /// <param name="file"></param>
         /// <returns></returns>
         public static string GetFile_ChunkXYAt(in int x, in int y, in ChunkFiles file) => $"{GetFolder_ChunkXY(x, y)}{ Files_Chunk[(int)file]}";
-
+        public static string GetFile_ChunkXYAt(in int2 pos, in ChunkFiles file) => $"{GetFolder_ChunkXY(pos)}{ Files_Chunk[(int)file]}";
         public static string GetFile_ChunkXYAt(in int x, in int y, in int file) => $"{GetFolder_ChunkXY(x, y)}{ Files_Chunk[file]}";
+        public static string GetFile_ChunkXYAt(in int2 pos, in int file) => $"{GetFolder_ChunkXY(pos)}{ Files_Chunk[file]}";
         //Shared Chunks Datas
         public static string GetFile_ChunksSharedTriangles() => $"{GetFolder_ChunksSharedDatas}{File_ChunksSharedTriangles}";
         public static string GetFile_ChunksSharedVertex() => $"{GetFolder_ChunksSharedDatas}{File_ChunksSharedVertex}";

@@ -7,10 +7,10 @@ using UnityEngine;
 
 using static KaizerWaldCode.Utils.KWmath;
 using static Unity.Mathematics.math;
-using dir = KaizerWaldCode.Directories_MapGeneration;
+using dir = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 using static KaizerWaldCode.KWSerialization.BinarySerialization;
 
-namespace KaizerWaldCode
+namespace KaizerWaldCode.TerrainGeneration
 {
     public class TerrainGenerationDirectoriesTree
     {
@@ -25,7 +25,7 @@ namespace KaizerWaldCode
         private void GetOrCreateDirectories()
         {
             //dir.SelectedSave = folderName;
-            Debug.Log(Directories_MapGeneration.ToString());
+            Debug.Log(dir.ToString());
             
             //"Directory.CreateDirectory" create all missing directory in the path(does not create a duplicate if already exist)
             if (!Directory.Exists(dir.GetFolder_TerrainGeneration)) { Directory.CreateDirectory(dir.GetFolder_TerrainGeneration); }

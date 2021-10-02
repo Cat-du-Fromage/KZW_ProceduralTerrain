@@ -11,7 +11,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
-using dir = KaizerWaldCode.Directories_MapGeneration;
+using dir = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 using static Unity.Mathematics.math;
 using static Unity.Mathematics.float3;
 using static KaizerWaldCode.Utils.KWmath;
@@ -33,7 +33,6 @@ namespace KaizerWaldCode.TerrainGeneration
         
         public void DoState()
         {
-            Debug.Log($"DoState Vertices");
             VerticesPositionProcess();
             VerticesCellIndexProcess();
             SharedVerticesPositionProcess();
@@ -96,8 +95,6 @@ namespace KaizerWaldCode.TerrainGeneration
             jobHandle.Complete();
             JsonHelper.ToJson<int>(verticesCellIndex, dir.GetFile_MapAt(MapFiles.VerticesCellIndex));
         }
-        
-        
     }
     
     #region JOBS

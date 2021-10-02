@@ -1,4 +1,4 @@
-﻿namespace KaizerWaldCode.KwDelaunay
+﻿namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     public interface IPoint
     {

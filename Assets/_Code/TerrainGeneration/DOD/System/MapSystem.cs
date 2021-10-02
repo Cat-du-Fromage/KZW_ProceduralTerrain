@@ -15,7 +15,7 @@ using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using static KaizerWaldCode.Utils.KWmath;
 using static KaizerWaldCode.KWSerialization.BinarySerialization;
 
-using dir2 = KaizerWaldCode.Directories_MapGeneration;
+using dir2 = KaizerWaldCode.TerrainGeneration.Directories_MapGeneration;
 
 namespace KaizerWaldCode.TerrainGeneration.KwSystem
 {
@@ -85,8 +85,9 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
 
         public void LoadNewMap()
         {
-            TerrainGenerationDirectoriesTree testTree = new TerrainGenerationDirectoriesTree(mapSettings);
+            TerrainGenerationDirectoriesTree testTree = new TerrainGenerationDirectoriesTree(in mapSettings);
             MapDatasStateMachine testState = new MapDatasStateMachine(in mapSettings);
+            ChunkSlicerStateMachine testSlice = new ChunkSlicerStateMachine(in mapSettings);
             /*
             VerticesPositionProcess();
             SharedVerticesPositionProcess();

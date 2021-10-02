@@ -12,7 +12,7 @@ using static KaizerWaldCode.Utils.KWmath;
 
 using float2 = Unity.Mathematics.float2;
 
-namespace KaizerWaldCode.KwDelaunay
+namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     [BurstCompile(CompileSynchronously = true)]
     public struct DelaunayProcessIdsJob : IJobFor

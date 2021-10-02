@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
 
-namespace KaizerWaldCode.KwDelaunay
+namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     public interface ITriangle
     {

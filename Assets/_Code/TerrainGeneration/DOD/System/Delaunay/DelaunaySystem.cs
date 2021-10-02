@@ -17,7 +17,7 @@ using static KaizerWaldCode.Utils.KWmath;
 using float2 = Unity.Mathematics.float2;
 using float3 = Unity.Mathematics.float3;
 
-namespace KaizerWaldCode.KwDelaunay
+namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     
     public partial class DelaunaySystem

@@ -7,6 +7,7 @@ using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using KaizerWaldCode.Utils;
+using KaizerWaldCode.TerrainGeneration;
 
 using static Unity.Mathematics.math;
 using static KaizerWaldCode.Utils.NativeCollectionUtils;
@@ -17,7 +18,7 @@ using int2 = Unity.Mathematics.int2;
 using float2 = Unity.Mathematics.float2;
 using float3 = Unity.Mathematics.float3;
 
-namespace KaizerWaldCode.KwDelaunay
+namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     public partial class DelaunaySystem
     {

@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace KaizerWaldCode.KwDelaunay
+namespace KaizerWaldCode.TerrainGeneration.KwDelaunay
 {
     public struct VoronoiCell : IVoronoiCell
     {

@@ -9,36 +9,41 @@ namespace KaizerWaldCode.Utils
 {
     public static class NativeCollectionUtils
     {
-        public static void AllocNtvArray(ref NativeArray<float3> array, int size)
+        public static void AllocNtvArray(ref NativeArray<float3> array, in int size)
         {
             array = new NativeArray<float3>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         }
 
-        public static NativeArray<T> AllocNtvAry<T>(int size, NativeArrayOptions nativeArrayOptions = NativeArrayOptions.UninitializedMemory) where T : struct
+        public static NativeArray<T> AllocNtvAry<T>(in int size, in Allocator a = Allocator.TempJob) where T : struct
         {
-            return new NativeArray<T>(size, Allocator.TempJob, nativeArrayOptions);
+            return new NativeArray<T>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        }
+        
+        public static NativeArray<T> AllocNtvAryOption<T>(in int size, in NativeArrayOptions nao = NativeArrayOptions.UninitializedMemory) where T : struct
+        {
+            return new NativeArray<T>(size, Allocator.TempJob, nao);
         }
 
-        public static NativeArray<T> AllocFillNtvAry<T>(int size, T val) where T : struct
+        public static NativeArray<T> AllocFillNtvAry<T>(in int size, in T val) where T : struct
         {
             NativeArray<T> a = new NativeArray<T>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < size; i++) { a[i] = val; }
             return a;
         }
 
-        public static NativeArray<T> ArrayToNativeArray<T>(T[] array,Allocator alloc = Allocator.TempJob ,NativeArrayOptions init = NativeArrayOptions.ClearMemory) where T : struct
+        public static NativeArray<T> ArrayToNativeArray<T>(in T[] array, in Allocator a = Allocator.TempJob , in NativeArrayOptions nao = NativeArrayOptions.UninitializedMemory) where T : struct
         {
-            NativeArray<T> nA = new NativeArray<T>(array.Length, alloc, init);
+            NativeArray<T> nA = new NativeArray<T>(array.Length, a, nao);
             nA.CopyFrom(array);
             return nA;
         }
 
-        public static void Fill<T>(ref NativeArray<T> array, int arrayLength, T val) where T : struct
+        public static void Fill<T>(ref NativeArray<T> array, in int arrayLength, in T val) where T : struct
         {
             for (int i = 0; i < arrayLength; i++) { array[i] = val; }
         }
         
-        public static int NumValueNotEqualTo<T>(in NativeArray<T> array, T val) where T : struct
+        public static int NumValueNotEqualTo<T>(in NativeArray<T> array, in T val) where T : struct
         {
             int n = 0;
             for (int i = 0; i < array.Length; i++)

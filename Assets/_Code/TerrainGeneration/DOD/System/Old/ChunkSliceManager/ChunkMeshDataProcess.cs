@@ -28,7 +28,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
                 DONT FORGET * 6!! 
                 mapSettings.ChunkPointPerAxis-1 represent the umber of "quads" on the grid (CARFUL : number quads != numchunks or chunkSize (because of the numPointPerMeter)
             */
-            triangles = AllocNtvAry<int>(sq(mapSettings.ChunkPointPerAxis-1) * 6, NativeArrayOptions.ClearMemory); 
+            triangles = AllocNtvAryOption<int>(sq(mapSettings.ChunkPointPerAxis-1) * 6, NativeArrayOptions.ClearMemory); 
             JobHandle triJobHandle = TrianglesMeshProcess(gDependency, ref triangles);
             
             //Uvs MAP process
