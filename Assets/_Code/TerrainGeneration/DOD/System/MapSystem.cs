@@ -88,6 +88,7 @@ namespace KaizerWaldCode.TerrainGeneration.KwSystem
             TerrainGenerationDirectoriesTree testTree = new TerrainGenerationDirectoriesTree(in mapSettings);
             MapDatasStateMachine testState = new MapDatasStateMachine(in mapSettings);
             ChunkSlicerStateMachine testSlice = new ChunkSlicerStateMachine(in mapSettings);
+            IslandStateMachine testIsland = new IslandStateMachine(in mapSettings);
             /*
             VerticesPositionProcess();
             SharedVerticesPositionProcess();

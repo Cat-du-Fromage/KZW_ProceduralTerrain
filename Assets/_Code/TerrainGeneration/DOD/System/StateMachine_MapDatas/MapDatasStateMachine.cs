@@ -35,6 +35,7 @@ namespace KaizerWaldCode.TerrainGeneration
             voronoiState = new VoronoiState(in mapSettings);
             uvsState = new UvsState(in mapSettings);
             InitializeStateMachine();
+            StateMachineStart();
         }
 
         public void InitializeStateMachine()
@@ -46,7 +47,6 @@ namespace KaizerWaldCode.TerrainGeneration
                 if (state == EStateMapDatas.End) break;
                 States.Add(state);
             }
-            StateMachineStart();
         }
 
         public void StateMachineStart()
@@ -72,6 +72,8 @@ namespace KaizerWaldCode.TerrainGeneration
                     break;
                 case EStateMapDatas.Uvs:
                     uvsState.DoState();
+                    break;
+                case EStateMapDatas.End:
                     break;
                 default:
                     break;

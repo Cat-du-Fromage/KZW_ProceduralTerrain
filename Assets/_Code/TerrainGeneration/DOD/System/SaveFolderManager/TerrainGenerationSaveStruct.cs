@@ -4,8 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using KaizerWaldCode.TerrainGeneration;
 using KaizerWaldCode.TerrainGeneration.KwSystem;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
+
+using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -28,6 +32,14 @@ namespace KaizerWaldCode.TerrainGeneration
         Uvs = 2,
         PerlinNoise = 3,
     }
+    
+    [Flags]
+    public enum IslandFiles : int
+    {
+        Indices = 0,
+        PointsDistance = 1,
+    }
+    
     [Flags]
     public enum MapFiles : int
     {
@@ -40,6 +52,7 @@ namespace KaizerWaldCode.TerrainGeneration
         Island = 6,
         Noise = 7,
         FallOff = 8,
+        PointsDistance = 9,
     }
     public class Directories_MapGeneration
     {
@@ -103,6 +116,7 @@ namespace KaizerWaldCode.TerrainGeneration
                 @"\IslandShape.json",
                 @"\Noise.json",
                 @"\FallOff.json",
+                @"\PointsDistance.json",
             };
 
             Files_Delaunay = new string[]
@@ -164,10 +178,10 @@ namespace KaizerWaldCode.TerrainGeneration
         #region FILES
         //CAREFUL Path.Combine DONT WORK for files
         //Delaunay Datas
-        public static string GetFile_DelaunayAt(in DelaunayFiles file) => $"{GetFolder_Delaunay}{Files_Delaunay[(int)file]}";
+        public static string GetFile_DelaunayAt(in DelaunayFiles file) => $"{GetFolder_Delaunay}{Files_Delaunay[EnumToInt(file)]}";
         public static string GetFile_DelaunayAt(in int file) => $"{GetFolder_Delaunay}{Files_Delaunay[file]}";
         //Map Datas
-        public static string GetFile_MapAt(in MapFiles file) => $"{GetFolder_MapDatas}{Files_Map[(int)file]}";
+        public static string GetFile_MapAt(in MapFiles file) => $"{GetFolder_MapDatas}{Files_Map[EnumToInt(file)]}";
         public static string GetFile_MapAt(in int file) => $"{GetFolder_MapDatas}{Files_Map[file]}";
         
         /// <summary>
@@ -177,8 +191,8 @@ namespace KaizerWaldCode.TerrainGeneration
         /// <param name="y">Y position of the chunk</param>
         /// <param name="file"></param>
         /// <returns></returns>
-        public static string GetFile_ChunkXYAt(in int x, in int y, in ChunkFiles file) => $"{GetFolder_ChunkXY(x, y)}{ Files_Chunk[(int)file]}";
-        public static string GetFile_ChunkXYAt(in int2 pos, in ChunkFiles file) => $"{GetFolder_ChunkXY(pos)}{ Files_Chunk[(int)file]}";
+        public static string GetFile_ChunkXYAt(in int x, in int y, in ChunkFiles file) => $"{GetFolder_ChunkXY(x, y)}{ Files_Chunk[EnumToInt(file)]}";
+        public static string GetFile_ChunkXYAt(in int2 pos, in ChunkFiles file) => $"{GetFolder_ChunkXY(pos)}{ Files_Chunk[EnumToInt(file)]}";
         public static string GetFile_ChunkXYAt(in int x, in int y, in int file) => $"{GetFolder_ChunkXY(x, y)}{ Files_Chunk[file]}";
         public static string GetFile_ChunkXYAt(in int2 pos, in int file) => $"{GetFolder_ChunkXY(pos)}{ Files_Chunk[file]}";
         //Shared Chunks Datas
