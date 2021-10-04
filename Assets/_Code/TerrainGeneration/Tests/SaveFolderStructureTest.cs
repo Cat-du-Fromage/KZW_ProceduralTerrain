@@ -9,65 +9,98 @@ using UAssert = UnityEngine.Assertions.Assert;
 [TestFixture]
 public class SaveFolderStructureTest
 {
+    FolderStructure folderStructure;
     [SetUp]
     public void SetUpTest()
     {
-        
+        folderStructure = new FolderStructure("");
+        Directory.Delete(folderStructure.GetGameSavesPath(), true);
     }
     // A Test behaves as an ordinary method
-    [Test]
+    [Test, Order(0)]
     public void FolderStruct_CallStructure_Exist()
     {
         //Arrange
-        FolderStructure folderStructure = new FolderStructure("");
+        
         //Act
 
         //Assert
         Assert.IsInstanceOf<FolderStructure>(folderStructure);
     }
     
-    [Test]
+    [Test, Order(1)]
     public void FolderStruct_GetSaveName_NotEmpty()
     {
         //Arrange
-        FolderStructure folderStructure = new FolderStructure("");
+        
         //Act
         string saveName = folderStructure.GetSaveName();
         //Assert
         Assert.IsNotEmpty(saveName);
     }
     
-    [Test]
-    public void FolderStruct_GetDirectoryContainingSaveFiles_EXIST()
+    [Test, Order(2)]
+    public void FolderStruct_GetDirectorySavedGame_True()
     {
         //Arrange
-        FolderStructure folderStructure = new FolderStructure("");
+        
         //Act
-        string savesRoot = folderStructure.GetSavesRoot();
+        string savesRoot = folderStructure.GetGameSavesPath();
         //Assert
         Assert.IsTrue(Directory.Exists(savesRoot));
     }
     
-    [Test]
-    public void FolderStruct_GetDirectorySaveName_EXIST()
+    [Test, Order(3)]
+    public void FolderStruct_GetDirectorySelectedSave_True()
     {
         //Arrange
-        FolderStructure folderStructure = new FolderStructure("");
+        
         //Act
-        string saveNamePath = folderStructure.GetSaveNamePath();
+        string saveNamePath = folderStructure.GetSelectedSavePath();
         //Assert
         Assert.IsTrue(Directory.Exists(saveNamePath));
     }
     
-    [Test]
-    public void FolderStruct_CheckIfSaveNameAlreadyExist_EXIST()
+    [Test, Order(4)]
+    public void FolderStruct_SelectedSaveNameAlreadyExist_True()
     {
         //Arrange
-        FolderStructure folderStructure = new FolderStructure("");
+        //Directory.Delete(folderStructure.GetGameSavesPath(), true);
+        folderStructure.GetSelectedSavePath();
         //Act
-        bool exist = folderStructure.CheckSaveName();
+        bool exist = folderStructure.SelectedSaveExists();
         //Assert
         Assert.IsTrue(exist);
+    }
+    
+    [Test, Order(5)]
+    public void FolderStruct_CreateDirectoryWhenNameAlreadyUse_True()
+    {
+        //Arrange
+        //Directory.Delete(folderStructure.GetSavesRoot(), true);
+        folderStructure.CreateNewSave();
+        int numDirectoryAtStart = Directory.GetDirectories(folderStructure.GetGameSavesPath()).Length;
+        //Act
+        folderStructure.CreateNewSave();
+        //Assert
+        Assert.AreEqual(numDirectoryAtStart + 1, Directory.GetDirectories(folderStructure.GetGameSavesPath()).Length);
+    }
+    
+    [Test, Order(6)]
+    public void FolderStruct_Create3DirectoryWhenNameAlreadyUse_True()
+    {
+        //Arrange
+        //Directory.Delete(folderStructure.GetGameSavesPath(), true);
+        folderStructure.CreateNewSave();
+        int numDirectoryAtStart = Directory.GetDirectories(folderStructure.GetGameSavesPath()).Length;
+        int numDirectoryToCreate = 3;
+        //Act
+        for (int i = 0; i < numDirectoryToCreate; i++)
+        {
+            folderStructure.CreateNewSave();
+        }
+        //Assert
+        Assert.AreEqual(numDirectoryAtStart + numDirectoryToCreate, Directory.GetDirectories(folderStructure.GetGameSavesPath()).Length);
     }
     
 }
