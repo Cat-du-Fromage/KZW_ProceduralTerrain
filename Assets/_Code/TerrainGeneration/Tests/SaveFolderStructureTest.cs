@@ -10,11 +10,12 @@ using UAssert = UnityEngine.Assertions.Assert;
 public class SaveFolderStructureTest
 {
     FolderStructure folderStructure;
+    
     [SetUp]
     public void SetUpTest()
     {
+        //Directory.Delete(folderStructure.GetGameSavesPath(), true);
         folderStructure = new FolderStructure("");
-        Directory.Delete(folderStructure.GetGameSavesPath(), true);
     }
     // A Test behaves as an ordinary method
     [Test, Order(0)]

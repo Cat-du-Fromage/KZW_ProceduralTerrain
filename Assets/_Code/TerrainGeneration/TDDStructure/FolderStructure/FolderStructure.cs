@@ -17,19 +17,22 @@ public sealed class FolderStructure
     {
         this.selectedSaveName = selectedSaveName == String.Empty ? DefaultSaveName : selectedSaveName;
         
-        gameSavesPath = Path.Combine(Application.persistentDataPath, GameSaves);
-        selectedSavePath = Path.Combine(Application.persistentDataPath, GetGameSavesPath(), this.selectedSaveName);
+        gameSavesPath = CreateGameSaves();
+        selectedSavePath = CreateNewSave();
     }
+    
+    string CreateGameSaves() => Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, GameSaves)).FullName;
     
     public string GetSaveName() => selectedSaveName;
 
-    public string GetGameSavesPath()
+    public string GetGameSavesPath() => gameSavesPath;
+    /*
     {
         if (!Directory.Exists(gameSavesPath))
             Directory.CreateDirectory(gameSavesPath);
         return gameSavesPath;
     }
-
+*/
     public string GetSelectedSavePath()
     {
         if (!Directory.Exists(selectedSavePath))
@@ -39,13 +42,13 @@ public sealed class FolderStructure
 
     public bool SelectedSaveExists() => Directory.Exists(selectedSavePath);
 
-    public void CreateNewSave()
+    public string CreateNewSave()
     {
-        string directoryName = selectedSavePath;
+        string directoryName = selectedSavePath ?? Path.Combine(gameSavesPath, selectedSaveName);
         for (int count = 0; Directory.Exists(directoryName); count++)
         {
             directoryName  = Path.Combine(Application.persistentDataPath, GetGameSavesPath(), $"{selectedSaveName}({count})");
         }
-        Directory.CreateDirectory(directoryName);
+        return Directory.CreateDirectory(directoryName).FullName;
     }
 }
